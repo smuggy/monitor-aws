@@ -1,0 +1,9 @@
+secrets/
+.idea/
+*~
+*.tfstate
+*.tfstate.backup
+.terraform/
+*.iml
+all_hosts
+**/env/

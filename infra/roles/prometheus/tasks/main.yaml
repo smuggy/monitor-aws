@@ -1,0 +1,94 @@
+- name: create group prometheus
+  group:
+    name: prometheus
+    state: present
+
+- name: create user prometheus
+  user:
+    name: prometheus
+    create_home: false
+    shell: /bin/false
+    group: prometheus
+    state: present
+
+- name: make directory
+  file:
+    path: /tmp/prom_download
+    mode: 0755
+    state: directory
+
+- name: download prometheus zip file
+  get_url:
+    url: "https://github.com/prometheus/prometheus/releases/download/v2.14.0/prometheus-2.14.0.linux-amd64.tar.gz"
+    dest: "/tmp/prom_download"
+
+- name: unarchive prometheus
+  unarchive:
+    src: "/tmp/prom_download/prometheus-2.14.0.linux-amd64.tar.gz"
+    dest: "/tmp/prom_download"
+    remote_src: yes
+
+- name: move executables
+  copy:
+    src: "/tmp/prom_download/prometheus-2.14.0.linux-amd64/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: 0755
+    owner: prometheus
+    group: prometheus
+    remote_src: yes
+  with_items:
+    - prometheus
+    - promtool
+
+- name: create etc prometheus directory
+  file:
+    path: "/etc/prometheus"
+    mode: 0755
+    owner: prometheus
+    group: prometheus
+    state: directory
+
+- name: copy console files
+  copy:
+    src: "/tmp/prom_download/prometheus-2.14.0.linux-amd64/consoles"
+    dest: "/etc/prometheus"
+    owner: prometheus
+    group: prometheus
+    remote_src: yes
+
+- name: copy console libraries
+  copy:
+    src: "/tmp/prom_download/prometheus-2.14.0.linux-amd64/console_libraries"
+    dest: "/etc/prometheus"
+    owner: prometheus
+    group: prometheus
+    remote_src: yes
+
+- name: copy config file
+  copy:
+    src: "/tmp/prom_download/prometheus-2.14.0.linux-amd64/prometheus.yml"
+    dest: "/etc/prometheus/prometheus.yml"
+    owner: prometheus
+    group: prometheus
+    remote_src: yes
+
+- name: create data directory
+  file:
+    path: /var/lib/prometheus
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: 0755
+
+- name: create service file
+  copy:
+    src: prometheus.service
+    dest: /etc/systemd/system/prometheus.service
+    mode: 0644
+
+- name: start prometheus service
+  systemd:
+    name: prometheus
+    state: started
+    enabled: yes
+    daemon_reload: yes

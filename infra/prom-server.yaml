@@ -1,0 +1,8 @@
+#
+#
+#
+- name: configure prometheus servers
+  hosts: prom_servers
+  become: yes
+  roles:
+    - prometheus
