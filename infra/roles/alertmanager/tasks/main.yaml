@@ -1,0 +1,75 @@
+- name: create group alertmanager
+  group:
+    name: alertmanager
+    state: present
+
+- name: create user alertmanager
+  user:
+    name: alertmanager
+    create_home: false
+    shell: /bin/false
+    group: alertmanager
+    state: present
+
+- name: make directory
+  file:
+    path: /tmp/am_download
+    mode: 0755
+    state: directory
+
+- name: download alertmanager zip file
+  get_url:
+    url: "https://github.com/prometheus/alertmanager/releases/download/v0.20.0-rc.0/alertmanager-0.20.0-rc.0.linux-amd64.tar.gz"
+    dest: "/tmp/am_download"
+
+- name: unarchive alertmanager
+  unarchive:
+    src: "/tmp/am_download/alertmanager-0.20.0-rc.0.linux-amd64.tar.gz"
+    dest: "/tmp/am_download"
+    remote_src: yes
+
+- name: move executables
+  copy:
+    src: "/tmp/am_download/alertmanager-0.20.0-rc.0.linux-amd64/{{ item }}"
+    dest: "/usr/local/bin/{{ item }}"
+    mode: 0755
+    owner: alertmanager
+    group: alertmanager
+    remote_src: yes
+  with_items:
+    - alertmanager
+    - amtool
+
+- name: create etc alertmanager directory
+  file:
+    path: "/etc/alertmanager"
+    mode: 0755
+    owner: alertmanager
+    group: alertmanager
+    state: directory
+
+- name: copy config file
+  copy:
+    src: "/tmp/am_download/alertmanager-0.20.0-rc.0.linux-amd64/alertmanager.yml"
+    dest: "/etc/alertmanager/alertmanager.yml"
+    owner: alertmanager
+    group: alertmanager
+    remote_src: yes
+
+- name: create service file
+  copy:
+    src: alertmanager.service
+    dest: /etc/systemd/system/alertmanager.service
+    mode: 0644
+
+- name: start alertmanager service
+  systemd:
+    name: alertmanager
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: remove alert manager download
+  file:
+    path: /tmp/am_download
+    state: absent

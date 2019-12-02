@@ -66,11 +66,11 @@
 
 - name: copy config file
   copy:
-    src: "/tmp/prom_download/prometheus-2.14.0.linux-amd64/prometheus.yml"
+    src: "prometheus.yml"
     dest: "/etc/prometheus/prometheus.yml"
     owner: prometheus
     group: prometheus
-    remote_src: yes
+    mode: 0644
 
 - name: create data directory
   file:
