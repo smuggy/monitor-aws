@@ -1,0 +1,56 @@
+- name: create group node_exporter
+  group:
+    name: node_exporter
+    state: present
+
+- name: create user node_exporter
+  user:
+    name: node_exporter
+    create_home: false
+    shell: /bin/false
+    group: node_exporter
+    state: present
+
+- name: make directory
+  file:
+    path: /tmp/ne_download
+    mode: 0755
+    state: directory
+
+- name: download alertmanager zip file
+  get_url:
+    url: "https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz"
+    dest: "/tmp/ne_download"
+
+- name: unarchive alertmanager
+  unarchive:
+    src: "/tmp/ne_download/node_exporter-0.18.1.linux-amd64.tar.gz"
+    dest: "/tmp/ne_download"
+    remote_src: yes
+
+- name: move executables
+  copy:
+    src: "/tmp/ne_download/node_exporter-0.18.1.linux-amd64/node_exporter"
+    dest: "/usr/local/bin/node_exporter"
+    mode: 0755
+    owner: node_exporter
+    group: node_exporter
+    remote_src: yes
+
+- name: create service file
+  copy:
+    src: node_exporter.service
+    dest: /etc/systemd/system/node_exporter.service
+    mode: 0644
+
+- name: start node_exporter service
+  systemd:
+    name: node_exporter
+    state: started
+    enabled: yes
+    daemon_reload: yes
+
+- name: remove directory
+  file:
+    path: /tmp/ne_download
+    state: absent

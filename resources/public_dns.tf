@@ -7,9 +7,16 @@ resource "aws_route53_zone" "utility" {
 
 resource "aws_route53_record" "prometheus_internal" {
   zone_id = aws_route53_zone.utility.zone_id
-  count   = local.node_count
-  name    = local.internal_prometheus[count.index]
+  name    = local.internal_prometheus
   type    = "A"
   ttl     = "300"
-  records = [lookup(aws_instance.prometheus_servers[count.index], "private_ip")]
+  records = [aws_instance.prometheus_server.private_ip]
+}
+
+resource "aws_route53_record" "consul_internal" {
+  zone_id = aws_route53_zone.utility.zone_id
+  name    = local.internal_consul
+  type    = "A"
+  ttl     = "300"
+  records = [aws_instance.consul_server.private_ip]
 }

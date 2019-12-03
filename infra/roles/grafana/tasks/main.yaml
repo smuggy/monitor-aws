@@ -22,3 +22,8 @@
     state: started
     enabled: yes
     daemon_reload: yes
+
+- name: delete download directory
+  file:
+    path: "/tmp/graf_download"
+    state: absent

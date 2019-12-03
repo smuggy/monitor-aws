@@ -1,10 +1,17 @@
 #
 #
 #
+- name: configure consul servers
+  hosts: consul_servers
+  become: yes
+  roles:
+    - node_exporter
+
 - name: configure prometheus servers
   hosts: prom_servers
   become: yes
   roles:
     - alertmanager
+    - node_exporter
     - prometheus
     - grafana
