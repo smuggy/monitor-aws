@@ -30,7 +30,7 @@ resource "aws_instance" "prometheus_server" {
   subnet_id         = local.subnet_id
   user_data         = "si-01"
 
-  vpc_security_group_ids = [local.secgrp_id, aws_security_group.prometheus_security_group.id]
+  vpc_security_group_ids = [local.secgrp_id, aws_security_group.prometheus_security_group.id, aws_security_group.consul_security_group.id]
 
   root_block_device {
     volume_size = 10

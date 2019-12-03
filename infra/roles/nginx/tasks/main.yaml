@@ -1,0 +1,22 @@
+- name: install nginx proxy
+  apt:
+    name: nginx
+    state: present
+
+- name: create nginx config file
+  copy:
+    src: consul
+    dest: /etc/nginx/sites-available/consul
+
+- name: link to enabled sites
+  file:
+    src: /etc/nginx/sites-available/consul
+    dest: /etc/nginx/sites-enabled/consul
+    state: link
+
+- name: start nginx service
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+    daemon_reload: yes

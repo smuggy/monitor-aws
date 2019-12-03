@@ -3,6 +3,16 @@ resource "aws_security_group" "prometheus_security_group" {
   vpc_id = local.vpc_id
 }
 
+
+resource "aws_security_group_rule" "prometheus_http" {
+  security_group_id = aws_security_group.prometheus_security_group.id
+  type              = "ingress"
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 80
+  to_port           = 80
+}
+
 resource "aws_security_group_rule" "prometheus_tcp" {
   security_group_id = aws_security_group.prometheus_security_group.id
   type              = "ingress"
@@ -35,10 +45,19 @@ resource "aws_security_group_rule" "consul_ui_tcp" {
   to_port           = 8500
 }
 
-resource "aws_security_group_rule" "consul_dns_all" {
+resource "aws_security_group_rule" "consul_dns_tcp" {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
-  protocol          = "all"
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 8600
+  to_port           = 8600
+}
+
+resource "aws_security_group_rule" "consul_dns_udp" {
+  security_group_id = aws_security_group.consul_security_group.id
+  type              = "ingress"
+  protocol          = "udp"
   cidr_blocks       = ["0.0.0.0/0"]
   from_port         = 8600
   to_port           = 8600

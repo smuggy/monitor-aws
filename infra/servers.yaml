@@ -5,13 +5,17 @@
   hosts: consul_servers
   become: yes
   roles:
+    - common
     - node_exporter
+    - consul
 
 - name: configure prometheus servers
   hosts: prom_servers
   become: yes
   roles:
+    - common
     - alertmanager
     - node_exporter
     - prometheus
     - grafana
+    - nginx

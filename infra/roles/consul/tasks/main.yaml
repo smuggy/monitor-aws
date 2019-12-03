@@ -1,0 +1,93 @@
+- name: install unzip
+  apt:
+    name: unzip
+    state: present
+
+- name: create group consul
+  group:
+    name: consul
+    state: present
+
+- name: create user consul
+  user:
+    name: consul
+    create_home: false
+    shell: /bin/false
+    group: consul
+    state: present
+
+- name: create download directory
+  file:
+    path: /tmp/consul_download
+    state: directory
+
+- name: get consul archive
+  get_url:
+    url: https://releases.hashicorp.com/consul/1.6.2/consul_1.6.2_linux_amd64.zip
+    dest: /tmp/consul_download
+
+- name: unarchive consul
+  unarchive:
+    src: /tmp/consul_download/consul_1.6.2_linux_amd64.zip
+    dest: /tmp/consul_download
+    remote_src: yes
+
+- name: copy consul to usr local bin
+  copy:
+    src: /tmp/consul_download/consul
+    dest: /usr/local/bin/consul
+    mode: 0755
+    owner: consul
+    group: consul
+    remote_src: yes
+
+- name: create etc consul directory
+  file:
+    path: /etc/consul.d
+    state: directory
+    owner: consul
+    group: consul
+    mode: 0755
+
+- name: create config file
+  template:
+    src: consul.hcl.j2
+    dest: /etc/consul.d/consul.hcl
+    owner: consul
+    group: consul
+    mode: 0444
+  vars:
+    bind_address: "{{ ansible_default_ipv4.address }}"
+
+- name: create consul data directory
+  file:
+    path: /var/lib/consul
+    state: directory
+    owner: consul
+    group: consul
+    mode: 0755
+
+- name: create service file
+  copy:
+    src: consul.service
+    dest: /etc/systemd/system/consul.service
+    mode: 0644
+
+- name: reset systemctl
+  systemd:
+    daemon_reload: yes
+
+- name: start consul service
+  systemd:
+    name: consul
+    state: started
+    enabled: yes
+  retries: 3
+  delay: 3
+  register: result
+  until: result.rc == 0
+
+#- name: remove consul
+#  file:
+#    path: /tmp/consul_download
+#    state: absent
