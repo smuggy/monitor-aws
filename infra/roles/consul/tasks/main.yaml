@@ -3,18 +3,11 @@
     name: unzip
     state: present
 
-- name: create group consul
-  group:
-    name: consul
-    state: present
-
-- name: create user consul
-  user:
-    name: consul
-    create_home: false
-    shell: /bin/false
-    group: consul
-    state: present
+- name: create consul service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: consul
 
 - name: create download directory
   file:

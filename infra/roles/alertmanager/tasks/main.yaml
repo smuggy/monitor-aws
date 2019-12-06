@@ -1,15 +1,8 @@
-- name: create group alertmanager
-  group:
-    name: alertmanager
-    state: present
-
-- name: create user alertmanager
-  user:
-    name: alertmanager
-    create_home: false
-    shell: /bin/false
-    group: alertmanager
-    state: present
+- name: create alertmanager service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: alertmanager
 
 - name: make directory
   file:

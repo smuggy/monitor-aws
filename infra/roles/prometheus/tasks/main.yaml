@@ -1,15 +1,8 @@
-- name: create group prometheus
-  group:
-    name: prometheus
-    state: present
-
-- name: create user prometheus
-  user:
-    name: prometheus
-    create_home: false
-    shell: /bin/false
-    group: prometheus
-    state: present
+- name: create prometheus service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: prometheus
 
 - name: make directory
   file:

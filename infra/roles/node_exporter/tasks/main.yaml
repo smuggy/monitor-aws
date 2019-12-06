@@ -1,15 +1,8 @@
-- name: create group node_exporter
-  group:
-    name: node_exporter
-    state: present
-
-- name: create user node_exporter
-  user:
-    name: node_exporter
-    create_home: false
-    shell: /bin/false
-    group: node_exporter
-    state: present
+- name: create node_exporter service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: node_exporter
 
 - name: make directory
   file:
