@@ -12,18 +12,18 @@
 
 - name: download prometheus zip file
   get_url:
-    url: "https://github.com/prometheus/prometheus/releases/download/v2.14.0/prometheus-2.14.0.linux-amd64.tar.gz"
+    url: "https://github.com/prometheus/prometheus/releases/download/v2.14.0/{{ prometheus_version }}.tar.gz"
     dest: "/tmp/prom_download"
 
 - name: unarchive prometheus
   unarchive:
-    src: "/tmp/prom_download/prometheus-2.14.0.linux-amd64.tar.gz"
+    src: "/tmp/prom_download/{{ prometheus_version }}.tar.gz"
     dest: "/tmp/prom_download"
     remote_src: yes
 
 - name: move executables
   copy:
-    src: "/tmp/prom_download/prometheus-2.14.0.linux-amd64/{{ item }}"
+    src: "/tmp/prom_download/{{ prometheus_version }}/{{ item }}"
     dest: "/usr/local/bin/{{ item }}"
     mode: 0755
     owner: prometheus
@@ -43,7 +43,7 @@
 
 - name: copy console files
   copy:
-    src: "/tmp/prom_download/prometheus-2.14.0.linux-amd64/consoles"
+    src: "/tmp/prom_download/{{ prometheus_version }}/consoles"
     dest: "/etc/prometheus"
     owner: prometheus
     group: prometheus
@@ -51,7 +51,7 @@
 
 - name: copy console libraries
   copy:
-    src: "/tmp/prom_download/prometheus-2.14.0.linux-amd64/console_libraries"
+    src: "/tmp/prom_download/{{ prometheus_version }}/console_libraries"
     dest: "/etc/prometheus"
     owner: prometheus
     group: prometheus
@@ -85,3 +85,8 @@
     state: started
     enabled: yes
     daemon_reload: yes
+
+- name: delete download directory
+  file:
+    path: /tmp/prom_download
+    state: absent

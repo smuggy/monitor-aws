@@ -12,18 +12,18 @@
 
 - name: download alertmanager zip file
   get_url:
-    url: "https://github.com/prometheus/alertmanager/releases/download/v0.20.0-rc.0/alertmanager-0.20.0-rc.0.linux-amd64.tar.gz"
+    url: "https://github.com/prometheus/alertmanager/releases/download/v0.20.0-rc.0/{{ alertmanager_version }}.tar.gz"
     dest: "/tmp/am_download"
 
 - name: unarchive alertmanager
   unarchive:
-    src: "/tmp/am_download/alertmanager-0.20.0-rc.0.linux-amd64.tar.gz"
+    src: "/tmp/am_download/{{ alertmanager_version }}.tar.gz"
     dest: "/tmp/am_download"
     remote_src: yes
 
 - name: move executables
   copy:
-    src: "/tmp/am_download/alertmanager-0.20.0-rc.0.linux-amd64/{{ item }}"
+    src: "/tmp/am_download/{{ alertmanager_version }}/{{ item }}"
     dest: "/usr/local/bin/{{ item }}"
     mode: 0755
     owner: alertmanager
@@ -43,7 +43,7 @@
 
 - name: copy config file
   copy:
-    src: "/tmp/am_download/alertmanager-0.20.0-rc.0.linux-amd64/alertmanager.yml"
+    src: "/tmp/am_download/{{ alertmanager_version }}/alertmanager.yml"
     dest: "/etc/alertmanager/alertmanager.yml"
     owner: alertmanager
     group: alertmanager
@@ -54,13 +54,8 @@
     src: alertmanager.service
     dest: /etc/systemd/system/alertmanager.service
     mode: 0644
-
-- name: start alertmanager service
-  systemd:
-    name: alertmanager
-    state: started
-    enabled: yes
-    daemon_reload: yes
+  notify:
+  - start alertmanager
 
 - name: remove alert manager download
   file:

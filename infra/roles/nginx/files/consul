@@ -11,17 +11,9 @@ upstream prometheus_server {
 }
 
 server {
-  listen 8500;
-  location / {
-    proxy_pass         http://consul_server/;
-  }
-}
-
-server {
   listen 80 default;
   location /consul/ {
     proxy_pass http://consul_server/;
-#    proxy_redirect http://consul_server/ http://$host/consul/;
     proxy_set_header Host $host;
     proxy_set_header Referer $http_referer;
     proxy_set_header X-Forwarded-For $remote_addr;

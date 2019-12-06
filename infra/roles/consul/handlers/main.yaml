@@ -1,0 +1,8 @@
+- name: start consul
+  systemd:
+    name: consul
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  register: result
+  ignore_errors: yes

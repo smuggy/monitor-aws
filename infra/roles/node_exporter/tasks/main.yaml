@@ -12,18 +12,18 @@
 
 - name: download node_exporter zip file
   get_url:
-    url: "https://github.com/prometheus/node_exporter/releases/download/v0.18.1/node_exporter-0.18.1.linux-amd64.tar.gz"
+    url: "https://github.com/prometheus/node_exporter/releases/download/v0.18.1/{{ node_exporter_version }}.tar.gz"
     dest: "/tmp/ne_download"
 
 - name: unarchive node_exporter
   unarchive:
-    src: "/tmp/ne_download/node_exporter-0.18.1.linux-amd64.tar.gz"
+    src: "/tmp/ne_download/{{ node_exporter_version }}.tar.gz"
     dest: "/tmp/ne_download"
     remote_src: yes
 
 - name: move executables
   copy:
-    src: "/tmp/ne_download/node_exporter-0.18.1.linux-amd64/node_exporter"
+    src: "/tmp/ne_download/{{ node_exporter_version }}/node_exporter"
     dest: "/usr/local/bin/node_exporter"
     mode: 0755
     owner: node_exporter
@@ -35,15 +35,10 @@
     src: node_exporter.service
     dest: /etc/systemd/system/node_exporter.service
     mode: 0644
+  notify:
+  - start node_exporter
 
-- name: start node_exporter service
-  systemd:
-    name: node_exporter
-    state: started
-    enabled: yes
-    daemon_reload: yes
-
-- name: remove directory
+- name: remove download directory
   file:
     path: /tmp/ne_download
     state: absent

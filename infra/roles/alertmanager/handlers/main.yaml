@@ -1,0 +1,6 @@
+- name: start alertmanager
+  systemd:
+    name: alertmanager
+    state: started
+    enabled: yes
+    daemon_reload: yes
