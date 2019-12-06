@@ -14,6 +14,11 @@
     dest: /etc/nginx/sites-enabled/consul
     state: link
 
+- name: remove default site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+
 - name: start nginx service
   systemd:
     name: nginx

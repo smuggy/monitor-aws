@@ -3,7 +3,7 @@ locals {
   vpc_id       = data.aws_vpc.utility_vpc.id
   subnet_id    = data.aws_subnet.utility_subnet.id
   secgrp_id    = data.aws_security_group.vpc_secgrp.id
-  ami_owner    = "099720109477"
+  ami_owner    = "099720109477"    # Canonical Group Limited
   key_name     = "utility-key"
   ami_id       = data.aws_ami.ubuntu.id
   secgrp_name  = "utility_default_sg"
@@ -11,13 +11,11 @@ locals {
 
   availability_zone = "${local.region}b"
 
-  prometheus_host     = format("prometheus.utility.podspace.net ansible_host=%s", aws_instance.prometheus_server.public_ip)
   internal_prometheus = "prometheus.utility.podspace.net"
+  prometheus_host     = format("%s ansible_host=%s", local.internal_prometheus, aws_instance.prometheus_server.public_ip)
 
-#  prometheus_hosts    = formatlist("ps-%d.utility.podspace.net ansible_host=%s", range(local.node_count), aws_instance.prometheus_servers.*.public_ip)
-#  internal_prometheus = formatlist("ps-%d.utility.podspace.net", range(local.node_count))
-  consul_host     = format("consul.utility.podspace.net ansible_host=%s", aws_instance.consul_server.public_ip)
   internal_consul = "consul.utility.podspace.net"
+  consul_host     = format("%s ansible_host=%s", local.internal_consul, aws_instance.consul_server.public_ip)
 }
 
 resource "aws_instance" "prometheus_server" {
@@ -30,7 +28,7 @@ resource "aws_instance" "prometheus_server" {
   subnet_id         = local.subnet_id
   user_data         = "si-01"
 
-  vpc_security_group_ids = [local.secgrp_id, aws_security_group.prometheus_security_group.id, aws_security_group.consul_security_group.id]
+  vpc_security_group_ids = [local.secgrp_id, aws_security_group.prometheus_security_group.id]
 
   root_block_device {
     volume_size = 10

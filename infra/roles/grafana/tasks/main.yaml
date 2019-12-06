@@ -16,6 +16,22 @@
 - name: install grafana
   shell: dpkg -i /tmp/graf_download/grafana_6.5.1_amd64.deb
 
+- name: update grafana ini file for proxy
+  ini_file:
+    path: /etc/grafana/grafana.ini
+    create: no
+    section: server
+    option: serve_from_sub_path
+    value: true
+
+- name: update grafana ini file for proxy
+  ini_file:
+    path: /etc/grafana/grafana.ini
+    create: no
+    section: server
+    option: root_url
+    value: http://prometheus.utility.podspace.net/grafana/
+
 - name: start grafana service
   systemd:
     name: grafana-server

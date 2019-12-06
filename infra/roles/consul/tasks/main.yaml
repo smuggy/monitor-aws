@@ -81,13 +81,19 @@
   systemd:
     name: consul
     state: started
-    enabled: yes
-  retries: 3
-  delay: 3
   register: result
-  until: result.rc == 0
+  ignore_errors: yes
 
-#- name: remove consul
-#  file:
-#    path: /tmp/consul_download
-#    state: absent
+- name: debug result
+  debug:
+    msg: "result from start is {{ result }}"
+
+- name: start consul service
+  systemd:
+    name: consul
+    enabled: yes
+
+- name: remove consul
+  file:
+    path: /tmp/consul_download
+    state: absent

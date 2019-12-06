@@ -1,21 +1,24 @@
 #
 #
 #
-- name: configure consul servers
-  hosts: consul_servers
+- name: common tasks for all hosts
+  hosts: all
   become: yes
   roles:
     - common
     - node_exporter
+
+- name: configure consul servers
+  hosts: consul_servers
+  become: yes
+  roles:
     - consul
 
 - name: configure prometheus servers
   hosts: prom_servers
   become: yes
   roles:
-    - common
     - alertmanager
-    - node_exporter
     - prometheus
     - grafana
     - nginx
