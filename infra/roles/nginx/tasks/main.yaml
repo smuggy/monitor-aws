@@ -7,6 +7,8 @@
   copy:
     src: consul
     dest: /etc/nginx/sites-available/consul
+  notify:
+  - start nginx
 
 - name: link to enabled sites
   file:
@@ -18,10 +20,5 @@
   file:
     path: /etc/nginx/sites-enabled/default
     state: absent
-
-- name: start nginx service
-  systemd:
-    name: nginx
-    state: started
-    enabled: yes
-    daemon_reload: yes
+  notify:
+  - start nginx

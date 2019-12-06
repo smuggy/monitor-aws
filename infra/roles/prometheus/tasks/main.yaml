@@ -78,13 +78,8 @@
     src: prometheus.service
     dest: /etc/systemd/system/prometheus.service
     mode: 0644
-
-- name: start prometheus service
-  systemd:
-    name: prometheus
-    state: started
-    enabled: yes
-    daemon_reload: yes
+  notify:
+  - start prometheus
 
 - name: delete download directory
   file:
