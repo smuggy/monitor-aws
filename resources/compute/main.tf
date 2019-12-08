@@ -118,7 +118,7 @@ resource null_resource "hosts" {
     template_rendered = data.template_file.all_hosts.rendered
   }
   provisioner "local-exec" {
-    command = "echo '${data.template_file.all_hosts.rendered}' > ../infra/all_hosts"
+    command = "echo '${data.template_file.all_hosts.rendered}' > ../../infra/all_hosts"
   }
 }
 
@@ -127,7 +127,7 @@ resource null_resource "consul_groups_vars" {
     root_ip = aws_instance.consul_server-1.private_ip
   }
   provisioner "local-exec" {
-    command = "echo 'root_agent_ips:\n  - ${join("\n  - ", local.consul_private_ips)}\n' > ../infra/group_vars/consul_servers"
+    command = "echo 'root_agent_ips:\n  - ${join("\n  - ", local.internal_consul)}\n' > ../../infra/group_vars/consul_servers"
   }
 }
 
@@ -136,6 +136,6 @@ resource null_resource "prom_groups_vars" {
     root_ip = aws_instance.consul_server-1.private_ip
   }
   provisioner "local-exec" {
-    command = "echo 'consul_names:\n  - ${join("\n  - ", local.internal_consul)}\n' > ../infra/group_vars/prom_servers"
+    command = "echo 'consul_names:\n  - ${join("\n  - ", local.internal_consul)}\n' > ../../infra/group_vars/prom_servers"
   }
 }

@@ -61,6 +61,26 @@
     group: consul
     mode: 0755
 
+- name: create file system on device
+  filesystem:
+    dev: /dev/nvme1n1
+    fstype: xfs
+
+- name: mount device for volume
+  mount:
+    state: mounted
+    path: /var/lib/consul
+    src: /dev/nvme1n1
+    fstype: xfs
+
+- name: update ownership of consul data directory
+  file:
+    path: /var/lib/consul
+    state: directory
+    owner: consul
+    group: consul
+    mode: 0755
+
 - name: create service file
   copy:
     src: consul.service
