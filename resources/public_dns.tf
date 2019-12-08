@@ -15,7 +15,7 @@ resource "aws_route53_record" "prometheus_internal" {
 
 resource "aws_route53_record" "consul_internal" {
   zone_id = aws_route53_zone.utility.zone_id
-  count   = 3
+  count   = length(local.internal_consul)
   name    = element(local.internal_consul, count.index)
   type    = "A"
   ttl     = "300"

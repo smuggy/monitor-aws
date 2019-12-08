@@ -39,24 +39,3 @@ data aws_ami ubuntu {
 
   owners = [local.ami_owner]  # Canonical Group Limited
 }
-
-data aws_ebs_volume consul_one_volume {
-  filter {
-    name   = "tag:Name"
-    values = ["consul-one"]
-  }
-}
-
-data aws_ebs_volume consul_two_volume {
-  filter {
-    name   = "tag:Name"
-    values = ["consul-two"]
-  }
-}
-
-data aws_ebs_volume consul_three_volume {
-  filter {
-    name   = "tag:Name"
-    values = ["consul-three"]
-  }
-}
