@@ -7,3 +7,5 @@ secrets/
 *.iml
 all_hosts
 **/env/
+infra/group_vars/*
+infra/host_vars/*

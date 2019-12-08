@@ -51,6 +51,7 @@
     mode: 0444
   vars:
     bind_address: "{{ ansible_default_ipv4.address }}"
+    ip_list: "{{ root_agent_ips }}"
 
 - name: create consul data directory
   file:
@@ -67,10 +68,6 @@
     mode: 0644
   notify:
   - start consul
-
-- name: debug result
-  debug:
-    msg: "result from start is {{ result }}"
 
 - name: remove consul
   file:

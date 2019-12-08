@@ -40,7 +40,7 @@ resource "aws_security_group_rule" "consul_ui_tcp" {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = ["10.0.0.0/8"]
   from_port         = 8500
   to_port           = 8500
 }
@@ -49,7 +49,7 @@ resource "aws_security_group_rule" "consul_dns_tcp" {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = ["10.0.0.0/8"]
   from_port         = 8600
   to_port           = 8600
 }
@@ -58,7 +58,17 @@ resource "aws_security_group_rule" "consul_dns_udp" {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
   protocol          = "udp"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = ["10.0.0.0/8"]
   from_port         = 8600
   to_port           = 8600
 }
+
+resource "aws_security_group_rule" "consul_self_all" {
+  security_group_id = aws_security_group.consul_security_group.id
+  type              = "ingress"
+  protocol          = "all"
+  from_port         = 0
+  to_port           = 65000
+  self              = true
+}
+

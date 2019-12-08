@@ -6,3 +6,7 @@
     daemon_reload: yes
   register: result
   ignore_errors: yes
+
+- name: debug result
+  debug:
+    msg: "result from start is {{ result }}"

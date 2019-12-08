@@ -32,5 +32,5 @@ scrape_configs:
       - targets: ['localhost:3000']
   - job_name: 'node_exporter'
     static_configs:
-      - targets: ['localhost:9100', 'consul.utility.podspace.net:9100']
+      - targets: ['localhost:9100', {{ consul_servers }}]
 ...

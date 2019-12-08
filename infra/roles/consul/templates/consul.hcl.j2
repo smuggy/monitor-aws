@@ -1,7 +1,12 @@
-datacenter = "aws1"
+datacenter = "us-east-2"
 data_dir = "/var/lib/consul"
 server = true
 ui = true
-bootstrap_expect = 1
+bootstrap_expect = 3
 client_addr = "{{ bind_address }}"
 bind_addr = "{{ bind_address }}"
+retry_join = [
+{% for item in ip_list %}
+ "{{ item }}",
+{% endfor %}
+]

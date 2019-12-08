@@ -57,13 +57,25 @@
     group: prometheus
     remote_src: yes
 
-- name: copy config file
-  copy:
-    src: "prometheus.yml"
-    dest: "/etc/prometheus/prometheus.yml"
+- name: set up fact for consul servers
+  set_fact:
+    consul_name_list: "{{ consul_name_list | default([]) + [ '\"' + item + ':9100\"' ] }}"
+  with_items:
+    "{{ consul_names }}"
+
+- name: set up one var for file
+  set_fact:
+    consul_servers: "{{ consul_name_list | join(',') }}"
+
+- name: create prometheus configuration file
+  template:
+    src: prometheus.yml.j2
+    dest: /etc/prometheus/prometheus.yml
     owner: prometheus
     group: prometheus
     mode: 0644
+  vars:
+    consul_servers: consul_servers
 
 - name: create data directory
   file:

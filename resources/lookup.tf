@@ -8,9 +8,19 @@ data "aws_vpc" "utility_vpc" {
   }
 }
 
-data "aws_subnet" "utility_subnet" {
+data "aws_subnet" "utility_subnet_one" {
   vpc_id            = data.aws_vpc.utility_vpc.id
-  availability_zone = local.availability_zone
+  availability_zone = local.az_one
+}
+
+data "aws_subnet" "utility_subnet_two" {
+  vpc_id            = data.aws_vpc.utility_vpc.id
+  availability_zone = local.az_two
+}
+
+data "aws_subnet" "utility_subnet_three" {
+  vpc_id            = data.aws_vpc.utility_vpc.id
+  availability_zone = local.az_three
 }
 
 # 18.04 LTS Bionic amd 64 hvm:ebs-ssd

@@ -1,4 +1,4 @@
-- name: start prometheus service
+- name: start prometheus
   systemd:
     name: prometheus
     state: started

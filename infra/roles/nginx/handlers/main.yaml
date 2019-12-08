@@ -1,6 +1,6 @@
-- name: start nginx service
+- name: start nginx
   systemd:
     name: nginx
-    state: started
+    state: restarted
     enabled: yes
     daemon_reload: yes
