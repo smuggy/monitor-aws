@@ -30,7 +30,7 @@ server {
   }
 
   location /grafana/ {
-  # need to update /etc/grafana/grafana.ini to specify
+  # need to update /etc/grafana/grafana.ini to specify both:
   # root_url = http://prometheus.utility.podspace.net/grafana
   # serve_from_sub_path = true
     proxy_pass http://grafana_server/;

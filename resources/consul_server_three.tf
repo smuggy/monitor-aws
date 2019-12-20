@@ -1,4 +1,4 @@
-resource aws_instance "consul_server_three" {
+resource aws_instance consul_server_three {
   ami               = local.ami_id
   instance_type     = "t3a.micro"
   availability_zone = local.az_three

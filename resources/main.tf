@@ -30,7 +30,7 @@ locals {
 
 }
 
-resource aws_instance "prometheus_server" {
+resource aws_instance prometheus_server {
   ami               = local.ami_id
   instance_type     = "t3a.micro"
   availability_zone = local.az_two
@@ -50,7 +50,7 @@ resource aws_instance "prometheus_server" {
   }
 }
 
-data template_file "all_hosts" {
+data template_file all_hosts {
   template = file("${path.module}/templates/hosts.cfg")
   depends_on = [aws_instance.prometheus_server]
   vars = {
@@ -59,29 +59,29 @@ data template_file "all_hosts" {
   }
 }
 
-resource null_resource "hosts" {
+resource null_resource hosts {
   triggers = {
     template_rendered = data.template_file.all_hosts.rendered
   }
-  provisioner "local-exec" {
+  provisioner local-exec {
     command = "echo '${data.template_file.all_hosts.rendered}' > ../infra/all_hosts"
   }
 }
 
-resource null_resource "consul_groups_vars" {
+resource null_resource consul_groups_vars {
   triggers = {
     root_ip = aws_instance.consul_server_two.private_ip
   }
-  provisioner "local-exec" {
+  provisioner local-exec {
     command = "echo 'root_agent_ips:\n  - ${join("\n  - ", local.internal_consul)}\n' > ../infra/group_vars/consul_servers"
   }
 }
 
-resource null_resource "prom_groups_vars" {
+resource null_resource prom_groups_vars {
   triggers = {
     root_ip = aws_instance.consul_server_two.private_ip
   }
-  provisioner "local-exec" {
+  provisioner local-exec {
     command = "echo 'consul_names:\n  - ${join("\n  - ", local.internal_consul)}\n' > ../infra/group_vars/prom_servers"
   }
 }

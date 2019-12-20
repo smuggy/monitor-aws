@@ -22,7 +22,7 @@
     create: no
     section: server
     option: serve_from_sub_path
-    value: true
+    value: "true"
 
 - name: update grafana ini file for proxy
   ini_file:

@@ -1,1 +1,4 @@
-alertmanager_version: alertmanager-0.20.0-rc.0.linux-amd64
+alertmanager_platform: linux-amd64
+alertmanager_version: 0.20.0
+alertmanager_name: "alertmanager-{{ alertmanager_version }}.{{ alertmanager_platform }}"
+alertmanager_artifact: "{{ alertmanager_name }}.tar.gz"

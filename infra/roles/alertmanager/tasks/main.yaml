@@ -12,18 +12,18 @@
 
 - name: download alertmanager zip file
   get_url:
-    url: "https://github.com/prometheus/alertmanager/releases/download/v0.20.0-rc.0/{{ alertmanager_version }}.tar.gz"
+    url: "https://github.com/prometheus/alertmanager/releases/download/v{{ alertmanager_version }}/{{ alertmanager_artifact }}"
     dest: "/tmp/am_download"
 
 - name: unarchive alertmanager
   unarchive:
-    src: "/tmp/am_download/{{ alertmanager_version }}.tar.gz"
+    src: "/tmp/am_download/{{ alertmanager_artifact }}"
     dest: "/tmp/am_download"
     remote_src: yes
 
 - name: move executables
   copy:
-    src: "/tmp/am_download/{{ alertmanager_version }}/{{ item }}"
+    src: "/tmp/am_download/{{ alertmanager_name }}/{{ item }}"
     dest: "/usr/local/bin/{{ item }}"
     mode: 0755
     owner: alertmanager
@@ -43,7 +43,7 @@
 
 - name: copy config file
   copy:
-    src: "/tmp/am_download/{{ alertmanager_version }}/alertmanager.yml"
+    src: "/tmp/am_download/{{ alertmanager_name }}/alertmanager.yml"
     dest: "/etc/alertmanager/alertmanager.yml"
     owner: alertmanager
     group: alertmanager
