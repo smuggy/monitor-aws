@@ -15,8 +15,8 @@ resource aws_route53_record prometheus_internal {
 
 resource aws_route53_record consul_internal {
   zone_id = aws_route53_zone.utility.zone_id
-  count   = length(local.internal_consul)
-  name    = element(local.internal_consul, count.index)
+  count   = length(local.internal_consuls)
+  name    = element(local.internal_consuls, count.index)
   type    = "A"
   ttl     = "300"
   records = local.consul_private_ips

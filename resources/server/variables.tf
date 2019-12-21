@@ -16,5 +16,9 @@ variable server_number {
 }
 
 variable app {
+}
 
+variable volume_size {
+  default = 0
+  type    = number
 }

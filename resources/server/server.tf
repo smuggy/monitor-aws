@@ -22,15 +22,17 @@ resource aws_instance server {
 }
 
 resource aws_volume_attachment volume_attachment {
-  volume_id    = aws_ebs_volume.volume.id
+  volume_id    = element(aws_ebs_volume.volume.*.id, 0)
   instance_id  = aws_instance.server.id
   device_name  = "/dev/sdf"
   force_detach = true
+  count        = var.volume_size > 0 ? 1: 0
 }
 
 resource aws_ebs_volume volume {
   availability_zone = var.az
-  size              = 4
+  size              = var.volume_size
+  count             = var.volume_size > 0 ? 1: 0
 
   tags = {
     Name = "${var.app}_volume_${var.server_number}"

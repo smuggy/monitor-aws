@@ -48,16 +48,25 @@ resource aws_security_group_rule consul_dns_tcp {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
   protocol          = "tcp"
-  cidr_blocks       = ["10.0.0.0/8"]
+  cidr_blocks       = ["10.20.0.0/16"]
   from_port         = 8600
   to_port           = 8600
+}
+
+resource aws_security_group_rule consul_am_tcp {
+  security_group_id = aws_security_group.consul_security_group.id
+  type              = "ingress"
+  protocol          = "tcp"
+  cidr_blocks       = ["10.20.0.0/16"]
+  from_port         = 9100
+  to_port           = 9100
 }
 
 resource aws_security_group_rule consul_dns_udp {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
   protocol          = "udp"
-  cidr_blocks       = ["10.0.0.0/8"]
+  cidr_blocks       = ["10.20.0.0/16"]
   from_port         = 8600
   to_port           = 8600
 }
