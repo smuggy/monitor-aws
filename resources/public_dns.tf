@@ -7,10 +7,10 @@ resource aws_route53_zone utility {
 
 resource aws_route53_record prometheus_internal {
   zone_id = aws_route53_zone.utility.zone_id
-  name    = local.internal_prometheus
+  name    = "prometheus-%02d.utility.podspace.net"
   type    = "A"
   ttl     = "300"
-  records = [module.prom_server.private_ip]
+  records = module.prom_server.private_ip
 }
 
 resource aws_route53_record consul_internal {
