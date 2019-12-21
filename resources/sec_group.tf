@@ -70,4 +70,3 @@ resource aws_security_group_rule consul_self_all {
   to_port           = 65000
   self              = true
 }
-

@@ -10,7 +10,7 @@ resource aws_route53_record prometheus_internal {
   name    = local.internal_prometheus
   type    = "A"
   ttl     = "300"
-  records = [aws_instance.prometheus_server.private_ip]
+  records = [module.prom_server.private_ip]
 }
 
 resource aws_route53_record consul_internal {

@@ -1,6 +1,6 @@
 output prometheus_public_ip {
   description = "Public ip of the prometheus server."
-  value       = aws_instance.prometheus_server.public_ip
+  value       = module.prom_server.public_ip
 }
 
 output consul_public_ips {

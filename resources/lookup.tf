@@ -22,20 +22,3 @@ data aws_subnet utility_subnet_three {
   vpc_id            = data.aws_vpc.utility_vpc.id
   availability_zone = local.az_three
 }
-
-# 18.04 LTS Bionic amd 64 hvm:ebs-ssd
-data aws_ami ubuntu {
-  most_recent = true
-
-  filter {
-    name = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-bionic-*-amd64-server-*"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = [local.ami_owner]  # Canonical Group Limited
-}
