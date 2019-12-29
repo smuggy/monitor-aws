@@ -83,7 +83,7 @@
     dest: /etc/prometheus/prometheus.env
     owner: prometheus
     group: prometheus
-    mode: 0644
+    mode: 0755
   vars:
     ec2_access_key_var: "{{ ec2_access_key }}"
     ec2_secret_key_var: "{{ ec2_secret_key }}"
