@@ -8,6 +8,7 @@ locals {
   consul_private_ips = module.consul_servers.private_ip
   consul_public_ips  = module.consul_servers.public_ip
   consul_hosts       = formatlist("%s ansible_host=%s", local.internal_consuls, local.consul_public_ips)
+  internal_consul_string = join("\n  - ", local.internal_consuls)
 }
 
 data template_file all_hosts {
@@ -19,13 +20,10 @@ data template_file all_hosts {
   }
 }
 
-resource null_resource hosts {
-  triggers = {
-    template_rendered = data.template_file.all_hosts.rendered
-  }
-  provisioner local-exec {
-    command = "echo '${data.template_file.all_hosts.rendered}' > ../infra/all_hosts"
-  }
+resource local_file host_file {
+  filename        = "../infra/all_hosts"
+  content         = data.template_file.all_hosts.rendered
+  file_permission = 0644
 }
 
 resource null_resource consul_groups_vars {
@@ -37,11 +35,26 @@ resource null_resource consul_groups_vars {
   }
 }
 
-resource null_resource prom_groups_vars {
-  triggers = {
-    root_ip = element(module.consul_servers.private_ip, 0)
+#resource null_resource prom_groups_vars {
+#  triggers = {
+#    root_ip = element(module.consul_servers.private_ip, 0)
+#  }
+#  provisioner local-exec {
+#    command = "echo 'consul_names:\n  - ${join("\n  - ", local.internal_consuls)}\n' > ../infra/group_vars/prom_servers"
+#  }
+#}
+
+data template_file prom_group_vars {
+  template = file("templates/prom_groups_vars.tpl")
+  vars = {
+    consuls = local.internal_consul_string
+    access_key = aws_iam_access_key.prom_access.id
+    secret_key = aws_iam_access_key.prom_access.secret
   }
-  provisioner local-exec {
-    command = "echo 'consul_names:\n  - ${join("\n  - ", local.internal_consuls)}\n' > ../infra/group_vars/prom_servers"
-  }
+}
+
+resource local_file prom_group_file {
+  filename        = "../infra/group_vars/prom_servers"
+  content         = data.template_file.prom_group_vars.rendered
+  file_permission = 0644
 }

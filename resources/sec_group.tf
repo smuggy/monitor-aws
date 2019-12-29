@@ -53,7 +53,7 @@ resource aws_security_group_rule consul_dns_tcp {
   to_port           = 8600
 }
 
-resource aws_security_group_rule consul_am_tcp {
+resource aws_security_group_rule consul_ne_tcp {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
   protocol          = "tcp"

@@ -1,13 +1,9 @@
-locals {
-  key_name   = "utility-key"
-}
-
 resource aws_instance server {
   count             = var.server_count
   ami               = local.ami_id
   instance_type     = "t3a.micro"
   availability_zone = element(var.az_list, count.index)
-  key_name          = local.key_name
+  key_name          = var.key_name
   subnet_id         = var.subnet_map[element(var.az_list, count.index)]
 
   vpc_security_group_ids = var.secgrps

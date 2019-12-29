@@ -29,3 +29,7 @@ variable server_count {
   default = 1
   type    = number
 }
+
+variable key_name {
+
+}

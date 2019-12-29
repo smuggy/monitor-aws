@@ -77,6 +77,17 @@
   vars:
     consul_servers: consul_servers
 
+- name: create environment file
+  template:
+    src: prometheus.env.j2
+    dest: /etc/prometheus/prometheus.env
+    owner: prometheus
+    group: prometheus
+    mode: 0644
+  vars:
+    ec2_access_key_var: "{{ ec2_access_key }}"
+    ec2_secret_key_var: "{{ ec2_secret_key }}"
+
 - name: create data directory
   file:
     path: /var/lib/prometheus

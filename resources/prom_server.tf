@@ -6,4 +6,9 @@ module prom_server {
   secgrps       = [local.secgrp_id, aws_security_group.prometheus_security_group.id]
   app           = "prom"
   server_count  = 1
+  key_name      = local.key_name
+}
+
+resource aws_iam_access_key prom_access {
+  user = "promsa"
 }

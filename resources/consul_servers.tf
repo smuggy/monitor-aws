@@ -7,4 +7,5 @@ module consul_servers {
   app           = "consul"
   volume_size   = 4
   server_count  = 3
+  key_name      = local.key_name
 }
