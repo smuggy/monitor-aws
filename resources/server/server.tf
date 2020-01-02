@@ -15,6 +15,7 @@ resource aws_instance server {
   tags = {
     ServerGroup = "${var.app}-server"
     Name        = "${var.app}-server-${var.server_number}"
+    NodeExport  = "true"
   }
 }
 
