@@ -1,0 +1,49 @@
+{
+  "datacenter": "us-east-2",
+  "data_dir": "/var/lib/consul",
+  "server": true,
+  "ui": true,
+  "bootstrap_expect": 3,
+  "client_addr": "{{ bind_address }}",
+  "bind_addr": "{{ bind_address }}",
+  "retry_join": [
+{% for item in ip_list %}
+   "{{ item }}"{{ "" if loop.last else ","}}
+{% endfor %}
+  ],
+  "telemetry": {
+    "prometheus_retention_time": "60m"
+  },
+  "acl": {
+    "enabled": true,
+    "default_policy": "allow",
+    "enable_token_persistence": true
+  },
+  "snapshot_agent": {
+    "http_addr": "127.0.0.1:8500",
+    "token": "",
+    "datacenter": "",
+    "ca_file": "",
+    "ca_path": "",
+    "cert_file": "",
+    "key_file": "",
+    "tls_server_name": "",
+    "log": {
+      "level": "INFO",
+      "enable_syslog": false,
+      "syslog_facility": "LOCAL0"
+    },
+    "snapshot": {
+      "interval": "1h",
+      "retain": 30,
+      "stale": false,
+      "service": "consul-snapshot",
+      "deregister_after": "72h",
+      "lock_key": "consul-snapshot/lock",
+      "max_failures": 3
+    },
+    "local_storage": {
+      "path": "."
+    }
+  }
+}

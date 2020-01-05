@@ -1,0 +1,21 @@
+- name: initialize acl
+  block:
+    - name: does acl exist
+      stat:
+        path: /tmp/acl.out
+      register: acl_result
+
+    - name: extract management token
+      shell: "consul acl bootstrap -http-addr={{ ansible_default_ipv4.address }}:8500"
+      register: aclout
+      when: acl_result.stat.exists == false
+
+    - name: write to server
+      copy:
+        content: "{{ aclout.stdout }}"
+        dest: /tmp/acl.out
+        mode: 0444
+        owner: consul
+        group: consul
+      when: acl_result.stat.exists == false
+  run_once: true

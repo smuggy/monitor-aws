@@ -22,3 +22,9 @@
     - prometheus
     - grafana
     - nginx
+
+- name: post consul actions
+  hosts: consul_servers
+  become: yes
+  roles:
+    - post_consul

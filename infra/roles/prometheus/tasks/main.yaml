@@ -57,16 +57,6 @@
     group: prometheus
     remote_src: yes
 
-- name: set up fact for consul servers
-  set_fact:
-    consul_name_list: "{{ consul_name_list | default([]) + [ '\"' + item + ':9100\"' ] }}"
-  with_items:
-    "{{ consul_names }}"
-
-- name: set up one var for file
-  set_fact:
-    consul_servers: "{{ consul_name_list | join(',') }}"
-
 - name: create prometheus configuration file
   template:
     src: prometheus.yml.j2
@@ -75,7 +65,7 @@
     group: prometheus
     mode: 0644
   vars:
-    consul_servers: consul_servers
+    consul_servers: "{{ consul_names }}"
 
 - name: create environment file
   template:

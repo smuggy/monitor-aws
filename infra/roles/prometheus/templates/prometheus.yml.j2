@@ -30,6 +30,14 @@ scrape_configs:
   - job_name: 'grafana'
     static_configs:
       - targets: ['localhost:3000']
+  - job_name: 'consul'
+    static_configs:
+      - targets: [{% for item in consul_servers %}
+                     "{{ item }}:8500"{{ "" if loop.last else "," }}
+                  {% endfor %}]
+    metrics_path: '/v1/agent/metrics'
+    params:
+      format: ['prometheus']
   - job_name: 'nodes'
     ec2_sd_configs:
       - region: us-east-2

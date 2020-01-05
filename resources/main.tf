@@ -35,15 +35,6 @@ resource null_resource consul_groups_vars {
   }
 }
 
-#resource null_resource prom_groups_vars {
-#  triggers = {
-#    root_ip = element(module.consul_servers.private_ip, 0)
-#  }
-#  provisioner local-exec {
-#    command = "echo 'consul_names:\n  - ${join("\n  - ", local.internal_consuls)}\n' > ../infra/group_vars/prom_servers"
-#  }
-#}
-
 data template_file prom_group_vars {
   template = file("templates/prom_groups_vars.tpl")
   vars = {

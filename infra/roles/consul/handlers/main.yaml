@@ -1,12 +1,2 @@
-- name: start consul
-  systemd:
-    name: consul
-    state: started
-    enabled: yes
-    daemon_reload: yes
-  register: result
-  ignore_errors: yes
-
-- name: debug result
-  debug:
-    msg: "result from start is {{ result }}"
+- name: restart consul
+  include_tasks: tasks/restart_consul.yaml

@@ -9,30 +9,38 @@
   vars:
     account_name: consul
 
-- name: create download directory
-  file:
-    path: /tmp/consul_download
-    state: directory
+- name: is consul installed
+  stat:
+    path: /usr/local/bin/consul
+  register: consul_result
 
-- name: get consul archive
-  get_url:
-    url: https://releases.hashicorp.com/consul/1.6.2/consul_1.6.2_linux_amd64.zip
-    dest: /tmp/consul_download
+- name: download and install consul
+  block:
+    - name: create download directory
+      file:
+        path: /tmp/consul_download
+        state: directory
 
-- name: unarchive consul
-  unarchive:
-    src: /tmp/consul_download/consul_1.6.2_linux_amd64.zip
-    dest: /tmp/consul_download
-    remote_src: yes
+    - name: get consul archive
+      get_url:
+        url: https://releases.hashicorp.com/consul/1.6.2/consul_1.6.2_linux_amd64.zip
+        dest: /tmp/consul_download
 
-- name: copy consul to usr local bin
-  copy:
-    src: /tmp/consul_download/consul
-    dest: /usr/local/bin/consul
-    mode: 0755
-    owner: consul
-    group: consul
-    remote_src: yes
+    - name: unarchive consul
+      unarchive:
+        src: /tmp/consul_download/consul_1.6.2_linux_amd64.zip
+        dest: /tmp/consul_download
+        remote_src: yes
+
+    - name: copy consul to usr local bin
+      copy:
+        src: /tmp/consul_download/consul
+        dest: /usr/local/bin/consul
+        mode: 0755
+        owner: consul
+        group: consul
+        remote_src: yes
+  when: consul_result.stat.exists == false
 
 - name: create etc consul directory
   file:
@@ -44,14 +52,16 @@
 
 - name: create config file
   template:
-    src: consul.hcl.j2
-    dest: /etc/consul.d/consul.hcl
+    src: consul.json.j2
+    dest: /etc/consul.d/consul.json
     owner: consul
     group: consul
     mode: 0444
   vars:
     bind_address: "{{ ansible_default_ipv4.address }}"
     ip_list: "{{ root_agent_ips }}"
+  notify:
+  - restart consul
 
 - name: create consul data directory
   file:
@@ -87,7 +97,7 @@
     dest: /etc/systemd/system/consul.service
     mode: 0644
   notify:
-  - start consul
+  - restart consul
 
 - name: remove consul
   file:

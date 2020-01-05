@@ -4,31 +4,44 @@
   vars:
     account_name: node_exporter
 
-- name: make directory
-  file:
-    path: /tmp/ne_download
-    mode: 0755
-    state: directory
+- name: is node_exporter installed
+  stat:
+    path: /usr/local/bin/node_exporter
+  register: ne_result
 
-- name: download node_exporter zip file
-  get_url:
-    url: "https://github.com/prometheus/node_exporter/releases/download/v0.18.1/{{ node_exporter_version }}.tar.gz"
-    dest: "/tmp/ne_download"
+- name: download and install node exporter
+  block:
+    - name: make directory
+      file:
+        path: /tmp/ne_download
+        mode: 0755
+        state: directory
 
-- name: unarchive node_exporter
-  unarchive:
-    src: "/tmp/ne_download/{{ node_exporter_version }}.tar.gz"
-    dest: "/tmp/ne_download"
-    remote_src: yes
+    - name: download node_exporter zip file
+      get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v0.18.1/{{ node_exporter_version }}.tar.gz"
+        dest: "/tmp/ne_download"
 
-- name: move executables
-  copy:
-    src: "/tmp/ne_download/{{ node_exporter_version }}/node_exporter"
-    dest: "/usr/local/bin/node_exporter"
-    mode: 0755
-    owner: node_exporter
-    group: node_exporter
-    remote_src: yes
+    - name: unarchive node_exporter
+      unarchive:
+        src: "/tmp/ne_download/{{ node_exporter_version }}.tar.gz"
+        dest: "/tmp/ne_download"
+        remote_src: yes
+
+    - name: move executables
+      copy:
+        src: "/tmp/ne_download/{{ node_exporter_version }}/node_exporter"
+        dest: "/usr/local/bin/node_exporter"
+        mode: 0755
+        owner: node_exporter
+        group: node_exporter
+        remote_src: yes
+
+    - name: remove download directory
+      file:
+        path: /tmp/ne_download
+        state: absent
+  when: ne_result.stat.exists == false
 
 - name: create service file
   copy:
@@ -38,7 +51,3 @@
   notify:
   - start node_exporter
 
-- name: remove download directory
-  file:
-    path: /tmp/ne_download
-    state: absent
