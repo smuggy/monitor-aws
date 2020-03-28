@@ -1,0 +1,115 @@
+data aws_ami nat {
+  most_recent = true
+  filter {
+    name = "name"
+    values = ["amzn-ami-vpc-nat-2018.03.0.20200206.0-*"]  //amzn-ami-vpc-nat-2018.03.0.20200206.0-x86_64-ebs
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["137112412989"]  // amazon or marketplace??
+}
+
+resource aws_instance nat {
+  ami               = data.aws_ami.nat.id
+  instance_type     = "t3a.micro"
+  availability_zone = "us-east-2a"
+  key_name          = aws_key_pair.utility_pair.key_name
+  subnet_id         = data.aws_subnet.utility_subnet_one.id
+  source_dest_check = false
+
+  vpc_security_group_ids = [local.secgrp_id, aws_security_group.prometheus_security_group.id]
+
+  root_block_device {
+    volume_size = 10
+  }
+
+  tags = {
+    ServerGroup = "nat-service"
+    Name        = "nat-instance-1"
+    NodeExport  = "false"
+  }
+}
+
+resource aws_lb nat_service {
+  name               = "nat-lb-tf"
+  internal           = true
+  load_balancer_type = "network"
+  subnets            = [
+    data.aws_subnet.utility_subnet_one.id,
+    data.aws_subnet.utility_subnet_two.id,
+    data.aws_subnet.utility_subnet_three.id]
+
+  enable_deletion_protection = false
+
+  tags = {
+    Environment = "test"
+  }
+}
+//
+resource aws_lb_listener http {
+  load_balancer_arn = aws_lb.nat_service.arn
+  port              = 80
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.http.arn
+  }
+}
+//
+resource aws_lb_listener ssh {
+  load_balancer_arn = aws_lb.nat_service.arn
+  port              = 22
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.ssh.arn
+  }
+}
+//
+resource aws_lb_target_group http {
+  name     = "tg-nat-http"
+  port     = 80
+  protocol = "TCP"
+  proxy_protocol_v2 = true
+  vpc_id   = local.vpc_id
+}
+//
+resource aws_lb_target_group ssh {
+  name     = "tg-nat-ssh"
+  port     = 22
+  protocol = "TCP"
+  proxy_protocol_v2 = true
+  vpc_id   = local.vpc_id
+}
+//
+resource aws_lb_target_group_attachment http {
+  target_group_arn = aws_lb_target_group.http.arn
+  target_id        = aws_instance.nat.id
+  port             = 80
+}
+//
+resource aws_lb_target_group_attachment ssh {
+  target_group_arn = aws_lb_target_group.ssh.arn
+  target_id        = aws_instance.nat.id
+  port             = 22
+}
+//
+//resource aws_vpc_endpoint_service provider {
+//  acceptance_required = false
+//
+//  network_load_balancer_arns = [aws_lb.nat_service.arn]
+//  tags = {
+//    name = "nat_service"
+//  }
+//}
+//
+//resource aws_vpc_endpoint_service_allowed_principal whitelist {
+//  vpc_endpoint_service_id = aws_vpc_endpoint_service.provider.id
+//  principal_arn = "*"
+//}

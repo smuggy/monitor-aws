@@ -23,12 +23,12 @@
 
     - name: get consul archive
       get_url:
-        url: https://releases.hashicorp.com/consul/1.6.2/consul_1.6.2_linux_amd64.zip
+        url: "https://releases.hashicorp.com/consul/{{ consul_version }}/{{ consul_artifact }}"
         dest: /tmp/consul_download
 
     - name: unarchive consul
       unarchive:
-        src: /tmp/consul_download/consul_1.6.2_linux_amd64.zip
+        src: "/tmp/consul_download/{{ consul_artifact }}"
         dest: /tmp/consul_download
         remote_src: yes
 
@@ -40,6 +40,11 @@
         owner: consul
         group: consul
         remote_src: yes
+
+    - name: remove consul download directory
+      file:
+        path: /tmp/consul_download
+        state: absent
   when: consul_result.stat.exists == false
 
 - name: create etc consul directory
@@ -63,12 +68,10 @@
   notify:
   - restart consul
 
-- name: create consul data directory
+- name: create consul directory
   file:
     path: /var/lib/consul
     state: directory
-    owner: consul
-    group: consul
     mode: 0755
 
 - name: create file system on device
@@ -83,13 +86,13 @@
     src: /dev/nvme1n1
     fstype: xfs
 
-- name: update ownership of consul data directory
+- name: create data directory
   file:
-    path: /var/lib/consul
-    state: directory
+    path: /var/lib/consul/data
     owner: consul
     group: consul
-    mode: 0755
+    mode: 0750
+    state: directory
 
 - name: create service file
   copy:
@@ -99,7 +102,3 @@
   notify:
   - restart consul
 
-- name: remove consul
-  file:
-    path: /tmp/consul_download
-    state: absent

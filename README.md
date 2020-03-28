@@ -17,3 +17,10 @@ Two security groups are created, the first for the consul cluster and the second
 The Consul nodes do have an EBS volume attached (to /var/lib/consul) that is created separately (and must be created first.)
 The reason for the separate creation was to allow the EBS volumes to exist without the nodes, that may not be necessary
 for restore or upgrade purposes.
+
+
+Popular grafana dashboards:
+  * Node Exporter - 11074
+  * Consul - 10642
+  * Cadvisor - 893
+  * Kubernetes - 8588
