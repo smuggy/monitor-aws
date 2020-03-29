@@ -5,6 +5,7 @@ data template_file all_hosts {
     prometheus_host_group = join("\n", local.prometheus_host)
     consul_host_group     = ""
 //    consul_host_group     = join("\n", local.consul_hosts)
+    web_host_group        = join("\n", local.ws_hosts)
   }
 }
 

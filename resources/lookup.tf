@@ -2,10 +2,15 @@ locals {
   vpc_id      = data.aws_vpc.utility_vpc.id
   region      = data.aws_region.current.name
   az_list     = ["${local.region}a", "${local.region}b", "${local.region}c"]
+  az_list_two = ["${local.region}b", "${local.region}c"]
   secgrp_name = "default"
   secgrp_id   = data.aws_security_group.vpc_secgrp.id
   subnet_map  = {
     element(local.az_list, 0)  = data.aws_subnet.utility_subnet_one.id
+    element(local.az_list, 1)  = data.aws_subnet.utility_subnet_two.id
+    element(local.az_list, 2)  = data.aws_subnet.utility_subnet_three.id
+  }
+  subnet_map_two  = {
     element(local.az_list, 1)  = data.aws_subnet.utility_subnet_two.id
     element(local.az_list, 2)  = data.aws_subnet.utility_subnet_three.id
   }
