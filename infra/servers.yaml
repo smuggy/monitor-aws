@@ -20,6 +20,12 @@
   roles:
     - nginx
 
+- name: configure log servers
+  hosts: log_servers
+  become: yes
+  roles:
+    - elasticsearch
+
 - name: configure prometheus servers
   hosts: prom_servers
   become: yes
@@ -28,6 +34,7 @@
     - prometheus
     - grafana
     - nginx
+    - prom_nginx_config
 
 - name: post consul actions
   hosts: consul_servers

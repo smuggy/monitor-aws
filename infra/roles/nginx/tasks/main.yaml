@@ -4,23 +4,3 @@
     state: present
   notify:
   - start nginx
-
-#- name: create nginx config file
-#  copy:
-#    src: consul
-#    dest: /etc/nginx/sites-available/consul
-#  notify:
-#  - start nginx
-#
-#- name: link to enabled sites
-#  file:
-#    src: /etc/nginx/sites-available/consul
-#    dest: /etc/nginx/sites-enabled/consul
-#    state: link
-#
-#- name: remove default site
-#  file:
-#    path: /etc/nginx/sites-enabled/default
-#    state: absent
-#  notify:
-#  - start nginx

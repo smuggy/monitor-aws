@@ -1,7 +1,7 @@
 resource aws_instance server {
   count             = var.server_count
   ami               = local.ami_id
-  instance_type     = "t3a.micro"
+  instance_type     = var.instance_type
   availability_zone = element(var.az_list, count.index)
   key_name          = var.key_name
   subnet_id         = var.subnet_map[element(var.az_list, count.index)]

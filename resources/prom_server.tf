@@ -38,3 +38,35 @@ resource aws_route53_record prometheus_reverse {
   ttl     = "300"
   records = ["prometheus.utility.podspace.net"]
 }
+
+resource aws_security_group prometheus_security_group {
+  name   = "prometheus_sg"
+  vpc_id = local.vpc_id
+}
+
+resource aws_security_group_rule prometheus_http {
+  security_group_id = aws_security_group.prometheus_security_group.id
+  type              = "ingress"
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 80
+  to_port           = 80
+}
+
+resource aws_security_group_rule prometheus_tcp {
+  security_group_id = aws_security_group.prometheus_security_group.id
+  type              = "ingress"
+  protocol          = "tcp"
+  cidr_blocks       = ["10.20.0.0/16"]
+  from_port         = 9090
+  to_port           = 9090
+}
+
+resource aws_security_group_rule grafana_tcp {
+  security_group_id = aws_security_group.prometheus_security_group.id
+  type              = "ingress"
+  protocol          = "tcp"
+  cidr_blocks       = ["10.20.0.0/16"]
+  from_port         = 3000
+  to_port           = 3000
+}
