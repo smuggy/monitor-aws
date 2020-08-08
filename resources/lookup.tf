@@ -44,3 +44,25 @@ data aws_subnet utility_subnet_three {
   vpc_id            = local.vpc_id
   availability_zone = element(local.az_list, 2)
 }
+
+//
+//resource null_resource cr {
+//  count = 1
+//  triggers = {
+//    vpc_id = local.vpc_id
+//  }
+//  provisioner local-exec {
+//    command = "aws route53 list-hosted-zones-by-vpc --region ${local.region} --vpc-region ${local.region} --vpc-id ${local.vpc_id} --output text --query 'HostedZoneSummaries[].[HostedZoneId,Name]' | grep podspace > ${path.module}/t1.out"
+//  }
+//  provisioner local-exec {
+//    command = "a=$(cat ${path.module}/t1.out) && echo $(sed 's/ .*//' <<< $a) > ${path.module}/t2.out"
+//  }
+//}
+//
+//data null_data_source namezone {
+//  count = 1
+//  depends_on = [null_resource.cr]
+//  inputs = {
+//    value = file("${path.module}/t2.out")
+//  }
+//}

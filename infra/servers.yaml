@@ -20,11 +20,23 @@
   roles:
     - nginx
 
-- name: configure log servers
-  hosts: log_servers
+- name: configure log data servers
+  hosts: elk_data_servers
   become: yes
   roles:
     - elasticsearch
+  vars:
+    es_role: data
+
+- name: configure log master servers
+  hosts: elk_master_servers
+  become: yes
+  roles:
+    - elasticsearch
+    - kibana
+  vars:
+    es_role: master
+#    - logstash
 
 - name: configure prometheus servers
   hosts: prom_servers

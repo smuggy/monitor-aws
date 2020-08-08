@@ -3,11 +3,15 @@ data template_file all_hosts {
   depends_on = [module.prom_server]
   vars = {
     prometheus_host_group = join("\n", local.prometheus_host)
-    consul_host_group     = ""
-//    consul_host_group     = join("\n", local.consul_hosts)
     web_host_group        = ""
+    consul_host_group     = ""
+//    consul_host_group     = local.consul_host_group
 //    web_host_group        = join("\n", local.ws_hosts)
-    log_host_group        = join("\n", local.log_hosts)
+//    log_master_host_group = ""
+//    log_data_host_group   = ""
+    log_master_host_group = join("\n", local.log_master_hosts)
+    log_data_host_group   = join("\n", local.log_data_hosts)
+//    log_host_group        = join("\n", local.log_hosts)
   }
 }
 
@@ -17,15 +21,6 @@ resource local_file host_file {
   file_permission = 0644
 }
 
-//resource null_resource consul_groups_vars {
-//  triggers = {
-//    root_ip = element(module.consul_servers.private_ip, 0)
-//  }
-//  provisioner local-exec {
-//    command = "echo 'root_agent_ips:\n  - ${join("\n  - ", local.internal_consuls)}\n' > ../infra/group_vars/consul_servers"
-//  }
-//}
-//
 data template_file prom_group_vars {
   template = file("templates/prom_groups_vars.tpl")
   vars = {
@@ -42,16 +37,12 @@ resource local_file prom_group_file {
   file_permission = 0644
 }
 
-resource aws_route53_zone utility {
-  name = "utility.podspace.net"
-  vpc {
-    vpc_id = local.vpc_id
-  }
+data aws_route53_zone internal {
+  name         = "internal.podspace.net"
+  private_zone = true
 }
 
-resource aws_route53_zone reverse {
-  name = "20.10.in-addr.arpa"
-  vpc {
-    vpc_id = local.vpc_id
-  }
+data aws_route53_zone reverse {
+  name         = "20.10.in-addr.arpa"
+  private_zone = true
 }

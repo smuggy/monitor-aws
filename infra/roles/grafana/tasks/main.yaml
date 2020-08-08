@@ -30,7 +30,7 @@
     create: no
     section: server
     option: root_url
-    value: http://prometheus.utility.podspace.net/grafana/
+    value: http://prometheus.internal.podspace.net/grafana/
   notify:
   - start grafana
 

@@ -1,0 +1,6 @@
+- name: start logstash
+  systemd:
+    name: logstash
+    state: started
+    enabled: yes
+    daemon_reload: yes

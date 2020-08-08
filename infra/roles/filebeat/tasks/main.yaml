@@ -1,0 +1,20 @@
+- name: create download dir
+  file:
+    path: /tmp/elasticsearch
+    mode: 0755
+    state: directory
+
+- name: add apt key
+  apt_key:
+    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+
+- name: install apt transport https
+  apt:
+    name: apt-transport-https
+    state: present
+
+- name: update list
+  shell: >-
+    echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+

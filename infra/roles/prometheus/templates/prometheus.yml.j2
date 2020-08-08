@@ -20,7 +20,7 @@ rule_files:
 # A scrape configuration containing exactly one endpoint to scrape:
 # Here it's Prometheus itself.
 scrape_configs:
-  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  # The job name is added as a label `job=job_name` to any timeseries scraped from this config.
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
@@ -30,14 +30,25 @@ scrape_configs:
   - job_name: 'grafana'
     static_configs:
       - targets: ['localhost:3000']
-  - job_name: 'consul'
-    static_configs:
-      - targets: [{% for item in consul_servers %}
-                     "{{ item }}:8500"{{ "" if loop.last else "," }}
-                  {% endfor %}]
-    metrics_path: '/v1/agent/metrics'
-    params:
-      format: ['prometheus']
+#  - job_name: 'kubernetes'
+#    kubernetes_sd_configs:
+#    - role: nodes
+#      api_server: kubernetes.internal.podspace.net:6443
+#      tls_config:
+#        ca_file: /tmp/ca.crt
+#      bearer_token_file: /tmp/token
+#{#  - job_name: 'kube_nodes'#}
+#    static_configs:#}
+#      - targets: ['ezkm-0.internal.podspace.net:6443']#}
+#    metrics_path: '/apis/metrics.k8s.io/v1beta/nodes'#}
+#  - job_name: 'consul'#}
+#    static_configs:#}
+#      - targets: [{% for item in consul_servers %}#}
+#                     "{{ item }}:8500"{{ "" if loop.last else "," }}#}
+#                  {% endfor %}]#}
+#{#    metrics_path: '/v1/agent/metrics'#}
+#{#    params:#}
+#{#      format: ['prometheus']#}
   - job_name: 'nodes'
     ec2_sd_configs:
       - region: us-east-2
@@ -46,12 +57,12 @@ scrape_configs:
       - source_labels: [__meta_ec2_tag_NodeExport]
         regex: true
         action: keep
-  - job_name: 'kubes'
-    ec2_sd_configs:
-      - region: us-east-2
-        port: 8080
-    relabel_configs:
-      - source_labels: [__meta_ec2_tag_KubeNode]
-        regex: true
-        action: keep
+{#  - job_name: 'kubes'#}
+{#    ec2_sd_configs:#}
+{#      - region: us-east-2#}
+{#        port: 8080#}
+{#    relabel_configs:#}
+{#      - source_labels: [__meta_ec2_tag_KubeNode]#}
+{#        regex: true#}
+{#        action: keep#}
 ...

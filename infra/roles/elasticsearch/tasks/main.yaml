@@ -27,10 +27,37 @@
     name: elasticsearch
     state: present
 
-- name: copy config
-  copy:
-    src: elasticsearch.yml
+- name: copy config - master
+  template:
+    src: elasticsearch.yml.j2
     dest: /etc/elasticsearch/elasticsearch.yml
+    owner: elasticsearch
+    group: elasticsearch
+  vars:
+    node_name: "{{ node_value }}"
+    master_hosts: "{{ master_ips }}"
+    master_nodes: "{{ master_names }}"
+    master_role_flag: true
+    data_role_flag: false
+    ingest_role_flag: true
+  when: es_role == "master"
+
+- name: test
+  debug:
+    msg: "value of node_value is {{ node_value }}"
+
+- name: copy config - data
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+  vars:
+    node_name: "{{ node_value }}"
+    master_hosts: "{{ master_ips }}"
+    master_nodes: "{{ master_names }}"
+    master_role_flag: false
+    data_role_flag: true
+    ingest_role_flag: false
+  when: es_role == "data"
 
 - name: start elasticsearch
   systemd:

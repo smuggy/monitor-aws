@@ -14,7 +14,7 @@ resource aws_instance server {
 
   tags = {
     ServerGroup = "${var.app}-server"
-    Name        = "${var.app}-server-${var.server_number}"
+    Name        = "${var.app}-server-${count.index}"
     NodeExport  = "true"
   }
 }
@@ -33,7 +33,7 @@ resource aws_ebs_volume volume {
   count             = var.volume_size > 0 ? var.server_count : 0
 
   tags = {
-    Name = "${var.app}_volume_${var.server_number}"
+    Name = "${var.app}_volume_${count.index}"
     App  = var.app
   }
 }

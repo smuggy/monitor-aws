@@ -1,28 +1,39 @@
 locals {
-  prometheus_host    = formatlist("prometheus-%02d.utility.podspace.net ansible_host=%s", range(1), module.prom_server.public_ip)
+  prometheus_host    = formatlist("prometheus-%02d.internal.podspace.net ansible_host=%s", range(1), module.prom_server.public_ip)
+  prom_count = 1
 }
 
 module prom_server {
   source        = "./server"
-  server_number = 1
   az_list       = local.az_list
   subnet_map    = local.subnet_map
   secgrps       = [local.secgrp_id, aws_security_group.prometheus_security_group.id]
   app           = "prom"
-  server_count  = 1
+  server_count  = local.prom_count
   key_name      = local.key_name
+  instance_type = "t3a.small"
 }
 
 resource aws_iam_access_key prom_access {
   user = "promsa"
 }
 
+//resource aws_route53_record prometheus_internal {
+//  depends_on = [data.null_data_source.namezone]
+//  count = "${data.null_data_source.namezone[0].outputs["value"] != "" && local.prom_count > 0 ? local.prom_count : 0}"
+//  zone_id = data.null_data_source.namezone[0].outputs["value"]
+//  name    = "prometheus"
+//  type    = "A"
+//  ttl     = "300"
+//  records = module.prom_server.private_ip
+//}
+
 resource aws_route53_record prometheus_internal {
-  zone_id = aws_route53_zone.utility.zone_id
-  name    = "prometheus.utility.podspace.net"
   type    = "A"
-  ttl     = "300"
-  records = module.prom_server.private_ip
+  ttl     = 300
+  zone_id = data.aws_route53_zone.internal.zone_id
+  name    = "prometheus.internal.podspace.net"
+  records = [element(module.prom_server.private_ip, 0)]
 }
 
 output prometheus_public_ip {
@@ -31,12 +42,12 @@ output prometheus_public_ip {
 }
 
 resource aws_route53_record prometheus_reverse {
-  zone_id = aws_route53_zone.reverse.zone_id
+  zone_id = data.aws_route53_zone.reverse.zone_id
   name    = join(".", reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",
                               element(module.prom_server.private_ip, 0))))
   type    = "PTR"
   ttl     = "300"
-  records = ["prometheus.utility.podspace.net"]
+  records = ["prometheus.internal.podspace.net"]
 }
 
 resource aws_security_group prometheus_security_group {

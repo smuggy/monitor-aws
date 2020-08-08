@@ -2,3 +2,13 @@
   apt:
     update_cache: yes
     upgrade: "yes"
+
+- name: update resolve domain
+  ini_file:
+    path: /etc/systemd/resolved.conf
+    section: Resolve
+    option: Domains
+    value: utility.podspace.net
+    backup: yes
+  notify:
+    - restart resolved

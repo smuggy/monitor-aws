@@ -13,10 +13,6 @@ variable secgrps {
   type        = list
 }
 
-variable server_number {
-  type = number
-}
-
 variable app {
 }
 

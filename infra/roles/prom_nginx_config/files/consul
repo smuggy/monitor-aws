@@ -1,37 +1,41 @@
-upstream consul_server {
-  server consul.utility.podspace.net:8500;
-}
+#upstream consul_server {
+#  server consul.internal.podspace.net:8500;
+#}
 
 upstream grafana_server {
-  server prometheus.utility.podspace.net:3000;
+  server prometheus.internal.podspace.net:3000;
 }
 
 upstream prometheus_server {
-  server prometheus.utility.podspace.net:9090;
+  server prometheus.internal.podspace.net:9090;
+}
+
+upstream kibana_server {
+  server kibana.internal.podspace.net:5601;
 }
 
 server {
   listen 80 default;
-  location /consul/ {
-    proxy_pass http://consul_server/;
-    proxy_set_header Host $host;
-    proxy_set_header Referer $http_referer;
-    proxy_set_header X-Forwarded-For $remote_addr;
-    proxy_set_header X-Forwarded-Proto $scheme;
+#  location /consul/ {
+#    proxy_pass http://consul_server/;
+#    proxy_set_header Host $host;
+#    proxy_set_header Referer $http_referer;
+#    proxy_set_header X-Forwarded-For $remote_addr;
+#    proxy_set_header X-Forwarded-Proto $scheme;
 
-    sub_filter '"/ui/' '"/consul/ui/';
-    sub_filter "'/ui/" "'/consul/ui/";
-    sub_filter_types application/javascript;
-    sub_filter_once off;
-  }
+#    sub_filter '"/ui/' '"/consul/ui/';
+#    sub_filter "'/ui/" "'/consul/ui/";
+#    sub_filter_types application/javascript;
+#    sub_filter_once off;
+#  }
 
-  location /v1/ {
-    proxy_pass http://consul_server/v1/;
-  }
+#  location /v1/ {
+#    proxy_pass http://consul_server/v1/;
+#  }
 
   location /grafana/ {
   # need to update /etc/grafana/grafana.ini to specify both:
-  # root_url = http://prometheus.utility.podspace.net/grafana
+  # root_url = http://prometheus.internal.podspace.net/grafana
   # serve_from_sub_path = true
     proxy_pass http://grafana_server/;
   }
@@ -48,5 +52,9 @@ server {
     sub_filter 'src="/' 'src="/prometheus/';
     sub_filter_types text/html;
     sub_filter_once off;
+  }
+
+  location /kibana/ {
+    proxy_pass http://kibana_server/;
   }
 }

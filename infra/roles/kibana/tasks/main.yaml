@@ -1,0 +1,11 @@
+- name: install kibana
+  apt:
+    name: kibana
+    state: present
+  notify:
+  - start kibana
+
+- name: copy config file
+  copy:
+    src: kibana.yml
+    dest: /etc/kibana/kibana.yml

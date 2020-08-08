@@ -1,0 +1,11 @@
+- name: install jre
+  apt:
+    name: default-jre
+    state: present
+
+- name: install logstash
+  apt:
+    name: logstash
+    state: present
+  notify:
+  - start logstash
