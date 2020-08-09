@@ -30,11 +30,11 @@ node.name: {{ node_name }}
 #
 # Path to directory where to store the data (separate multiple locations by comma):
 #
-path.data: {{  node_data_path | default('/var/lib/elasticsearch') }}
+path.data: {{  node_data_path | default('/elasticsearch/data') }}
 #
 # Path to log files:
 #
-path.logs: {{ node_log_path | default('/var/log/elasticsearch') }}
+path.logs: {{ node_log_path | default('/elasticsearch/log') }}
 #
 # ----------------------------------- Memory -----------------------------------
 #

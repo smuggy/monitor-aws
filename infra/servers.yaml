@@ -53,3 +53,9 @@
   become: yes
   roles:
     - post_consul
+
+- name: post everything
+  hosts: all
+  become: yes
+  roles:
+    - filebeat

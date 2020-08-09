@@ -100,6 +100,14 @@ resource aws_route53_record kibana_internal {
   records = module.master_servers.private_ip
 }
 
+resource aws_route53_record elasticsearch_internal {
+  zone_id = data.aws_route53_zone.internal.zone_id
+  name    = "elasticsearch.internal.podspace.net"
+  type    = "CNAME"
+  ttl     = "300"
+  records = ["kibana.internal.podspace.net"]
+}
+
 resource aws_route53_record kibana_reverse {
   zone_id = data.aws_route53_zone.reverse.zone_id
   name    = join(".", reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",

@@ -18,3 +18,29 @@
   shell: >-
     echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
 
+- name: update apt
+  apt:
+    update_cache: yes
+
+- name: install filebeat
+  apt:
+    name: filebeat
+    state: present
+
+- name: copy config
+  copy:
+    src: filebeat.yml
+    dest: /etc/filebeat/filebeat.yml
+
+- name: enable filebeat modules
+  command: filebeat modules enable system
+
+- name: setup filebeat
+  command: filebeat setup
+
+- name: start filebeat
+  systemd:
+    name: filebeat
+    enabled: yes
+    state: restarted
+    daemon_reload: yes

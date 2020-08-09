@@ -50,6 +50,8 @@
   template:
     src: elasticsearch.yml.j2
     dest: /etc/elasticsearch/elasticsearch.yml
+    owner: elasticsearch
+    group: elasticsearch
   vars:
     node_name: "{{ node_value }}"
     master_hosts: "{{ master_ips }}"
@@ -58,6 +60,44 @@
     data_role_flag: true
     ingest_role_flag: false
   when: es_role == "data"
+
+- name: create file system on device
+  filesystem:
+    dev: /dev/nvme1n1
+    fstype: xfs
+
+- name: setup volume
+  block:
+    - name: create data directory
+      file:
+        path: /elasticsearch
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0750
+        state: directory
+
+    - name: mount device for volume
+      mount:
+        state: mounted
+        path: /elasticsearch
+        src: /dev/nvme1n1
+        fstype: xfs
+
+    - name: create data directory
+      file:
+        path: /elasticsearch/data
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0750
+        state: directory
+
+    - name: create data directory
+      file:
+        path: /elasticsearch/log
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0750
+        state: directory
 
 - name: start elasticsearch
   systemd:
