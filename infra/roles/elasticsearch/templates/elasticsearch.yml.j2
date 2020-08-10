@@ -90,4 +90,15 @@ cluster.initial_master_nodes: [{{ master_nodes }}]
 node.master: {{ master_role_flag | default(true) }}
 node.data: {{ data_role_flag | default(true) }}
 node.ingest: {{ ingest_role_flag | default(true) }}
+node.remote_cluster_client: false
 node.ml: false
+#
+# ---------------------------------- Security -----------------------------------
+#
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.client_authentication: optional
+xpack.security.transport.ssl.verification_mode: full
+xpack.security.transport.ssl.key: pki/node_key.pem
+xpack.security.transport.ssl.certificate: pki/node_cert.pem
+xpack.security.transport.ssl.certificate_authorities: pki/elk_ca.pem

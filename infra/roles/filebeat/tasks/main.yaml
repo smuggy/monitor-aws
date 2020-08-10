@@ -22,6 +22,71 @@
   apt:
     update_cache: yes
 
+- name: setup filebeat id
+  block:
+    - name: create filebeat writer role
+      uri:
+        url: http://localhost:9200/_security/role/filebeat_writer
+        body: "{{ config_vals | to_nice_json }}"
+        body_format: json
+        url_username: elastic
+        url_password: top_secret
+        method: POST
+      vars:
+        config_vals:
+          cluster:
+            - manage_index_templates
+            - monitor
+            - manage_ingest_pipelines
+          indices:
+            - names:
+                - filebeat-*
+              privileges:
+                - write
+                - create_index
+
+    - name: create filebeat ilm role
+      uri:
+        url: http://localhost:9200/_security/role/filebeat_ilm
+        body: "{{ config_vals | to_nice_json }}"
+        body_format: json
+        url_username: elastic
+        url_password: top_secret
+        method: POST
+      vars:
+        config_vals:
+          cluster:
+            - manage_ilm
+          indices:
+            - names:
+                - filebeat-*
+                - shrink-filebeat-*
+              privileges:
+                - write
+                - create_index
+                - manage
+                - manage_ilm
+
+    - name: create filebeat user
+      uri:
+        url: http://localhost:9200/_security/user/filebeat_internal
+        body: "{{ config_vals | to_nice_json }}"
+        body_format: json
+        url_username: elastic
+        url_password: top_secret
+        method: POST
+      vars:
+        config_vals:
+          password: filebeat_pass
+          roles:
+            - filebeat_ilm
+            - filebeat_writer
+            - beats_system
+            - kibana_user
+            - ingest_admin
+          full_name: Filebeat internal user
+  when: "'elk_master_servers' in group_names"
+
 - name: install filebeat
   apt:
     name: filebeat

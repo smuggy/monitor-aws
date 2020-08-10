@@ -152,12 +152,12 @@ output.elasticsearch:
   hosts: ["elasticsearch.internal.podspace.net:9200"]
 
   # Protocol - either `http` (default) or `https`.
-  #protocol: "https"
+  protocol: "http"
 
   # Authentication credentials - either API key or username/password.
   #api_key: "id:api_key"
-  #username: "elastic"
-  #password: "changeme"
+  username: "filebeat_internal"
+  password: "filebeat_pass"
 
   # ------------------------------ Logstash Output -------------------------------
   #output.logstash:

@@ -8,7 +8,21 @@
     path: /etc/systemd/resolved.conf
     section: Resolve
     option: Domains
-    value: utility.podspace.net
+    value: internal.podspace.net
     backup: yes
   notify:
     - restart resolved
+
+- name: Ensure hostname set
+  hostname: name={{ inventory_hostname }}
+  become: true
+
+- debug:
+    msg: "hostname: {{ ansible_hostname }}\tfqdn:{{ ansible_fqdn }}\taddress: {{ ansible_default_ipv4.address }}\t{{ inventory_hostname }}"
+
+- name: Ensure hostname is in /etc/hosts
+  lineinfile:
+    dest=/etc/hosts
+    regexp="^{{ ansible_default_ipv4.address }}.+$"
+    line="{{ ansible_default_ipv4.address }} {{ inventory_hostname }} {{ ansible_hostname }}"
+  become: true

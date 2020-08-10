@@ -13,6 +13,10 @@ locals {
   log_data_hosts         = formatlist("%s ansible_host=%s", local.internal_data_log, local.log_data_public_ips)
 }
 
+module ca {
+  source = "./ca"
+}
+
 module master_servers {
   source        = "./server"
   az_list       = local.az_list
@@ -143,6 +147,9 @@ data template_file data_hostvar {
     node_name    = "data-${count.index}"
     master_ips   = join(",", local.log_master_private_ips)
     master_names = join(",", local.log_master_nodes)
+    key_name     = module.data_certs.local_key_name[count.index]
+    cert_name    = module.data_certs.local_cert_name[count.index]
+    ca_name      = module.ca.ca_name
   }
 }
 
@@ -150,9 +157,12 @@ data template_file master_hostvar {
   count    = local.log_master_count
   template = file("templates/hostvars.tpl")
   vars     = {
-    node_name = "master-${count.index}"
+    node_name    = "master-${count.index}"
     master_ips   = join(",", local.log_master_private_ips)
     master_names = join(",", local.log_master_nodes)
+    key_name     = module.master_certs.local_key_name[count.index]
+    cert_name    = module.master_certs.local_cert_name[count.index]
+    ca_name      = module.ca.ca_name
   }
 }
 
@@ -166,4 +176,24 @@ resource local_file master_hostvar_file {
   count    = local.log_master_count
   filename = "../infra/host_vars/${local.internal_master_log[count.index]}"
   content  = data.template_file.master_hostvar.*.rendered[count.index]
+}
+
+module data_certs {
+  source = "./cert"
+  mcount = local.log_data_count
+
+  ca_cert_pem = module.ca.ca_cert_pem
+  ca_key_pem  = module.ca.ca_key_pem
+  common_name = local.internal_data_log
+  ips         = module.data_servers.private_ip
+}
+
+module master_certs {
+  source = "./cert"
+  mcount = local.log_master_count
+
+  ca_cert_pem = module.ca.ca_cert_pem
+  ca_key_pem  = module.ca.ca_key_pem
+  common_name = local.internal_master_log
+  ips         = module.master_servers.private_ip
 }

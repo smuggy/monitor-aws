@@ -1,3 +1,20 @@
+- name: update kibana system password
+  uri:
+    url: http://localhost:9200/_security/user/kibana_system/_password
+    body: "{{ config_vals | to_nice_json }}"
+    body_format: json
+    url_username: elastic
+    url_password: top_secret
+    method: POST
+  vars:
+    config_vals:
+      password: "kibana_pass"
+  register: kibout
+
+- name: print out
+  debug:
+    msg: "Kibana set password output:\n{{ kibout }}"
+
 - name: install kibana
   apt:
     name: kibana

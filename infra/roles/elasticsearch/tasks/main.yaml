@@ -99,9 +99,52 @@
         mode: 0750
         state: directory
 
+- name: ssl setup
+  block:
+    - name: create cert folder
+      file:
+        path: /etc/elasticsearch/pki
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0755
+        state: directory
+
+    - name: copy ca to pki
+      copy:
+        src: "{{ ca_name }}"
+        dest: /etc/elasticsearch/pki/elk_ca.pem
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0444
+
+    - name: copy cert to pki
+      copy:
+        src: "{{ cert_name }}"
+        dest: /etc/elasticsearch/pki/node_cert.pem
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0444
+
+    - name: copy key to pki
+      copy:
+        src: "{{ key_name }}"
+        dest: /etc/elasticsearch/pki/node_key.pem
+        owner: elasticsearch
+        group: elasticsearch
+        mode: 0440
+
+- name: set bootstrap password
+  command:
+    cmd: /usr/share/elasticsearch/bin/elasticsearch-keystore add "bootstrap.password"
+    stdin: top_secret
+  run_once: yes
+  ignore_errors: yes
+  when: es_role == "master"
+
 - name: start elasticsearch
   systemd:
     name: elasticsearch
     state: restarted
     enabled: yes
     daemon_reload: yes
+
