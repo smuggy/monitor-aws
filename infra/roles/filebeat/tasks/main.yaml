@@ -82,7 +82,7 @@
             - filebeat_ilm
             - filebeat_writer
             - beats_system
-            - kibana_user
+            - kibana_admin
             - ingest_admin
           full_name: Filebeat internal user
   when: "'elk_master_servers' in group_names"
@@ -102,6 +102,7 @@
 
 - name: setup filebeat
   command: filebeat setup
+  when: "'elk_master_servers' in group_names"
 
 - name: start filebeat
   systemd:

@@ -1,6 +1,7 @@
 #
 #
 #
+---
 - name: common tasks for all hosts
   hosts: all
   become: yes
@@ -59,3 +60,4 @@
   become: yes
   roles:
     - filebeat
+...
