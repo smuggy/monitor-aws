@@ -1,0 +1,19 @@
+- name: start instance
+  command:
+    aws ec2 start-instances --instance-ids {{ instance_id }}
+
+- name: get instance data
+  command:
+    aws ec2 describe-instances --instance-ids {{ instance_id }}
+  register: aws_get_out
+
+- name: set new ip
+  set_fact:
+    new_public_ip: "{{ (aws_get_out.stdout | from_json).Reservations[0]['Instances'][0]['PublicIpAddress'] }}"
+
+- name: update ip
+  lineinfile:
+    path: "all_hosts"
+    state: present
+    regex: "{{ instance_name }}"
+    line: "{{ instance_name }}  ansible_host={{ new_public_ip }}"

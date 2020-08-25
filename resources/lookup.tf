@@ -9,12 +9,6 @@ locals {
     element(local.az_list, 1)  = data.aws_subnet.utility_subnet_two.id
     element(local.az_list, 2)  = data.aws_subnet.utility_subnet_three.id
   }
-
-//  az_list_two = ["${local.region}b", "${local.region}c"]
-//  subnet_map_two  = {
-//    element(local.az_list, 1)  = data.aws_subnet.utility_subnet_two.id
-//    element(local.az_list, 2)  = data.aws_subnet.utility_subnet_three.id
-//  }
 }
 
 data aws_region current {}
@@ -52,7 +46,10 @@ data aws_subnet utility_subnet_three {
 //    vpc_id = local.vpc_id
 //  }
 //  provisioner local-exec {
-//    command = "aws route53 list-hosted-zones-by-vpc --region ${local.region} --vpc-region ${local.region} --vpc-id ${local.vpc_id} --output text --query 'HostedZoneSummaries[].[HostedZoneId,Name]' | grep podspace > ${path.module}/t1.out"
+//    command = "aws route53 list-hosted-zones-by-vpc
+//                --region ${local.region} --vpc-region ${local.region}
+//                --vpc-id ${local.vpc_id} --output text --query 'HostedZoneSummaries[].[HostedZoneId,Name]'
+//                | grep podspace > ${path.module}/t1.out"
 //  }
 //  provisioner local-exec {
 //    command = "a=$(cat ${path.module}/t1.out) && echo $(sed 's/ .*//' <<< $a) > ${path.module}/t2.out"

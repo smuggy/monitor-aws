@@ -17,7 +17,7 @@ resource tls_self_signed_cert ca_cert {
 resource local_file ca_key {
   filename          = "../secrets/elk_ca_key.pem"
   sensitive_content = tls_private_key.ca_key.private_key_pem
-  file_permission   = "0440"
+  file_permission   = 0440
 }
 
 resource local_file ca_cert {

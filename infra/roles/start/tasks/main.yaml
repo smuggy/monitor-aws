@@ -1,0 +1,6 @@
+- name: start instance block
+  include_tasks: start.yaml
+  vars:
+    - instance_id: "{{ item.key }}"
+    - instance_name: "{{ item.value }}"
+  with_dict: "{{ instance_ids }}"

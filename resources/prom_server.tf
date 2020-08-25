@@ -1,6 +1,10 @@
 locals {
-  prometheus_host    = formatlist("prometheus-%02d.internal.podspace.net ansible_host=%s", range(1), module.prom_server.public_ip)
-  prom_count = 1
+  prometheus_host    = formatlist("prometheus-%02d.internal.podspace.net ansible_host=%s",
+                                  range(local.prom_count),
+                                  module.prom_server.public_ip)
+  prom_count         = 1
+  prom_instance_list = formatlist("  - %s: %s", module.prom_server.instance_id, "prometheus-00.internal.podspace.net")
+  prom_instances     = format("\n%s", join("\n", local.prom_instance_list))
 }
 
 module prom_server {

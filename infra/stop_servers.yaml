@@ -1,0 +1,4 @@
+- name: stop servers
+  hosts: localhost
+  roles:
+    - role: shutdown

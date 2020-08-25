@@ -46,7 +46,7 @@ resource local_file key {
 
   filename          = "../secrets/${var.common_name[count.index]}-key.pem"
   sensitive_content = tls_private_key.key.*.private_key_pem[count.index]
-  file_permission   = "0440"
+  file_permission   = 0440
 }
 
 resource local_file cert {
@@ -54,7 +54,7 @@ resource local_file cert {
 
   filename        = "../secrets/${var.common_name[count.index]}-cert.pem"
   content         = tls_locally_signed_cert.cert.*.cert_pem[count.index]
-  file_permission = "0444"
+  file_permission = 0444
 }
 
 output local_key_name {

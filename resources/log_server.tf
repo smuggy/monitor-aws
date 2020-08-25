@@ -1,16 +1,31 @@
 locals {
   log_master_count       = 1
   log_data_count         = 2
-  internal_master_log    = formatlist("elk-master-%02d.internal.podspace.net", range(local.log_master_count))
+  internal_master_log    = formatlist("elk-master-%02d.internal.podspace.net",
+                                      range(local.log_master_count))
   log_master_private_ips = module.master_servers.private_ip
   log_master_public_ips  = module.master_servers.public_ip
-  log_master_hosts       = formatlist("%s ansible_host=%s", local.internal_master_log, local.log_master_public_ips)
+  log_master_hosts       = formatlist("%s ansible_host=%s",
+                                      local.internal_master_log,
+                                      local.log_master_public_ips)
   log_master_nodes       = formatlist("master-%d", range(local.log_master_count))
+  log_master_list        = formatlist("  - %s: %s",
+                                      module.master_servers.instance_id,
+                                      local.internal_master_log)
 
-  internal_data_log      = formatlist("elk-data-%02d.internal.podspace.net", range(local.log_data_count))
+  internal_data_log      = formatlist("elk-data-%02d.internal.podspace.net",
+                                      range(local.log_data_count))
   log_data_private_ips   = module.data_servers.private_ip
   log_data_public_ips    = module.data_servers.public_ip
-  log_data_hosts         = formatlist("%s ansible_host=%s", local.internal_data_log, local.log_data_public_ips)
+  log_data_hosts         = formatlist("%s ansible_host=%s",
+                                      local.internal_data_log,
+                                      local.log_data_public_ips)
+  log_data_list          = formatlist("  - %s: %s",
+                                      module.data_servers.instance_id,
+                                      local.internal_data_log)
+  log_instances          = format("\n%s\n%s",
+                                  join("\n", local.log_master_list),
+                                  join("\n", local.log_data_list))
 }
 
 module ca {
@@ -114,8 +129,9 @@ resource aws_route53_record elasticsearch_internal {
 
 resource aws_route53_record kibana_reverse {
   zone_id = data.aws_route53_zone.reverse.zone_id
-  name    = join(".", reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",
-  element(module.master_servers.private_ip, 0))))
+  name    = join(".",
+                 reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",
+                 element(module.master_servers.private_ip, 0))))
   type    = "PTR"
   ttl     = "300"
   records = ["kibana.internal.podspace.net"]
@@ -133,8 +149,9 @@ resource aws_route53_record elk_data_internal {
 resource aws_route53_record elk_data_reverse {
   count   = local.log_data_count
   zone_id = data.aws_route53_zone.reverse.zone_id
-  name    = join(".", reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",
-                  element(module.data_servers.private_ip, count.index))))
+  name    = join(".",
+                 reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",
+                 element(module.data_servers.private_ip, count.index))))
   records = [local.internal_data_log[count.index]]
   type    = "PTR"
   ttl     = "300"

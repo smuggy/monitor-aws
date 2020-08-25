@@ -1,0 +1,4 @@
+- name:
+  command:
+    aws ec2 stop-instances --instance-ids {{ item.key }}
+  with_dict: "{{ instance_ids }}"

@@ -1,0 +1,4 @@
+- name: start servers
+  hosts: localhost
+  roles:
+    - role: start
