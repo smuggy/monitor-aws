@@ -1,5 +1,5 @@
 variable common_name {
-  type = list
+  type = list(string)
 }
 
 variable mcount {}
@@ -9,7 +9,7 @@ variable ca_cert_pem {}
 variable ca_key_pem {}
 
 variable ips {
-  type = list
+  type = list(string)
 }
 
 resource tls_private_key key {
