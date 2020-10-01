@@ -10,9 +10,9 @@ upstream prometheus_server {
   server prometheus.internal.podspace.net:9090;
 }
 
-upstream kibana_server {
-  server kibana.internal.podspace.net:5601;
-}
+#upstream kibana_server {
+#  server kibana.internal.podspace.net:5601;
+#}
 
 server {
   listen 80 default;
@@ -54,7 +54,7 @@ server {
     sub_filter_once off;
   }
 
-  location /kibana/ {
-    proxy_pass http://kibana_server/;
-  }
+#  location /kibana/ {
+#    proxy_pass http://kibana_server/;
+#  }
 }

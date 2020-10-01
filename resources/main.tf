@@ -7,10 +7,10 @@ data template_file all_hosts {
     consul_host_group     = ""
 //    consul_host_group     = local.consul_host_group
 //    web_host_group        = join("\n", local.ws_hosts)
-//    log_master_host_group = ""
-//    log_data_host_group   = ""
-    log_master_host_group = join("\n", local.log_master_hosts)
-    log_data_host_group   = join("\n", local.log_data_hosts)
+    log_master_host_group = ""
+    log_data_host_group   = ""
+//    log_master_host_group = join("\n", local.log_master_hosts)
+//    log_data_host_group   = join("\n", local.log_data_hosts)
   }
 }
 
@@ -46,8 +46,8 @@ data aws_route53_zone reverse {
   private_zone = true
 }
 
-resource local_file local_host_vars {
-  filename        = "../infra/host_vars/localhost"
-  content         = "instance_ids:${local.prom_instances}${local.log_instances}"
-  file_permission = 0444
-}
+//resource local_file local_host_vars {
+//  filename        = "../infra/host_vars/localhost"
+//  content         = "instance_ids:${local.prom_instances}${local.log_instances}"
+//  file_permission = 0444
+//}
