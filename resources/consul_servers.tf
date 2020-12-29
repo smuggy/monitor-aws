@@ -10,7 +10,7 @@ locals {
 //
 //module consul_servers {
 //  source        = "./server"
-//  server_number = 1
+////  server_number = 1
 //  az_list       = local.az_list
 //  subnet_map    = local.subnet_map
 //  secgrps       = [local.secgrp_id, aws_security_group.consul_security_group.id]
@@ -19,7 +19,7 @@ locals {
 //  server_count  = 3
 //  key_name      = local.key_name
 //}
-//
+////
 //resource aws_route53_record consul_internal {
 //  zone_id = data.aws_route53_zone.internal.zone_id
 //  count   = length(local.internal_consuls)
@@ -36,7 +36,7 @@ locals {
 //  ttl     = "300"
 //  records = local.consul_private_ips
 //}
-//
+////
 //output consul_public_ips {
 //  description = "Public ips for consul servers"
 //  value       = local.consul_public_ips
@@ -46,14 +46,14 @@ locals {
 //  name   = "consul_sg"
 //  vpc_id = local.vpc_id
 //}
-//
+////
 //resource aws_security_group_rule consul_ui_tcp {
 //  security_group_id = aws_security_group.consul_security_group.id
 //  type              = "ingress"
 //  protocol          = "tcp"
 //  cidr_blocks       = ["10.20.0.0/16"]
 //  from_port         = 8500
-//  to_port           = 8500
+//  to_port           = 8501
 //}
 //
 //resource aws_security_group_rule consul_dns_tcp {

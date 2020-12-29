@@ -3,38 +3,99 @@
     name: libfontconfig
     state: present
 
-- name: create download directory
-  file:
-    path: "/tmp/graf_download"
-    state: directory
-
-- name: download grafana package
-  get_url:
-    url: "https://dl.grafana.com/oss/release/grafana_7.2.0_amd64.deb"
-    dest: "/tmp/graf_download"
+- name: is grafana installed
+  stat:
+    path: /etc/grafana/grafana.ini
+  register: grafana_result
 
 - name: install grafana
-  shell: dpkg -i /tmp/graf_download/grafana_7.2.0_amd64.deb
+  block:
+    - name: create download directory
+      file:
+        path: "/tmp/graf_download"
+        state: directory
 
-- name: update grafana ini file for proxy
-  ini_file:
-    path: /etc/grafana/grafana.ini
-    create: no
-    section: server
-    option: serve_from_sub_path
-    value: "true"
+    - name: download grafana package
+      get_url:
+        url: "https://dl.grafana.com/oss/release/grafana_7.2.0_amd64.deb"
+        dest: "/tmp/graf_download"
 
-- name: update grafana ini file for proxy
-  ini_file:
-    path: /etc/grafana/grafana.ini
-    create: no
-    section: server
-    option: root_url
-    value: http://prometheus.internal.podspace.net/grafana/
-  notify:
-  - start grafana
+    - name: install grafana
+      shell: dpkg -i /tmp/graf_download/grafana_7.2.0_amd64.deb
 
-- name: delete download directory
-  file:
-    path: "/tmp/graf_download"
-    state: absent
+    - name: update grafana ini file for proxy
+      ini_file:
+        path: /etc/grafana/grafana.ini
+        create: no
+        section: server
+        option: serve_from_sub_path
+        value: "true"
+
+    - name: update grafana ini file for proxy
+      ini_file:
+        path: /etc/grafana/grafana.ini
+        create: no
+        section: server
+        option: root_url
+        value: http://prometheus.internal.podspace.net/grafana/
+      notify:
+      - start grafana
+
+    - name: delete download directory
+      file:
+        path: "/tmp/graf_download"
+        state: absent
+
+    - name: start grafana
+      systemd:
+        name: grafana-server
+        state: started
+        daemon_reload: yes
+
+    - name: wait for one minute
+      pause:
+        minutes: 1
+
+    - name: update password for admin
+      uri:
+        url: http://localhost:3000/api/user/password
+        method: PUT
+        user: admin
+        password: admin
+        body: >-
+          {
+            "oldPassword": "admin",
+            "newPassword": "test1234",
+            "confirmNew": "test1234"
+          }
+        body_format: json
+        return_content: yes
+        force_basic_auth: yes
+        status_code: [200]
+      register: grafana_admin
+  when: grafana_result.stat.exists == false
+
+- name: create default prometheus datasource
+  uri:
+    url: http://localhost:3000/api/datasources
+    method: POST
+    user: admin
+    password: test1234
+    force_basic_auth: yes
+    body: >-
+      {
+        "name": "prometheus",
+        "type": "prometheus",
+        "url": "http://localhost:9090",
+        "basicAuth": false,
+        "access": "proxy",
+        "isDefault": true
+      }
+    body_format: json
+    return_content: yes
+    status_code: [200]
+  register: grafana_datasource
+
+- name: print results
+  debug:
+    msg: "datasource setup results: {{ grafana_datasource }}"

@@ -4,8 +4,8 @@ data template_file all_hosts {
   vars = {
     prometheus_host_group = join("\n", local.prometheus_host)
     web_host_group        = ""
-    consul_host_group     = ""
-//    consul_host_group     = local.consul_host_group
+//    consul_host_group     = ""
+    consul_host_group     = local.consul_host_group
 //    web_host_group        = join("\n", local.ws_hosts)
     log_master_host_group = ""
     log_data_host_group   = ""

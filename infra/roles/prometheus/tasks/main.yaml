@@ -98,3 +98,5 @@
   file:
     path: /tmp/prom_download
     state: absent
+  notify:
+    - start prometheus
