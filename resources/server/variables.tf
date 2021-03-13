@@ -1,14 +1,14 @@
-variable az_list {
+variable az {
   description = "availability zone where the instance will be placed"
-  type        = list(string)
+  type        = string
 }
 
-variable subnet_map {
+variable subnet {
   description = "subnet id where the instance will be placed"
-  type        = map(string)
+  type        = string
 }
 
-variable secgrps {
+variable sec_groups {
   description = "security groups for the instance."
   type        = list(string)
 }
@@ -21,13 +21,17 @@ variable volume_size {
   type    = number
 }
 
-variable server_count {
-  default = 1
+variable server_group {
+  default = 0
   type    = number
 }
 
-variable key_name {
+//variable server_count {
+//  default = 1
+//  type    = number
+//}
 
+variable key_name {
 }
 
 variable instance_type {

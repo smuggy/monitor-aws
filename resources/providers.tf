@@ -7,7 +7,3 @@ provider local {
 
 provider tls {
 }
-
-terraform {
-  required_version = ">= 0.13"
-}

@@ -99,3 +99,17 @@
 - name: print results
   debug:
     msg: "datasource setup results: {{ grafana_datasource }}"
+
+- name: add node exporter dashboard (11074)
+  uri:
+    url: http://localhost:3000/api/dashboard
+    method: POST
+    user: admin
+    password: test1234
+    force_basic_auth: yes
+    body: "{{ lookup('file', 'node_exporter_dash.json') }}"
+    body_format: json
+    return_content: yes
+    status_code: [200]
+  register: dash_load_results
+  ignore_errors: yes
