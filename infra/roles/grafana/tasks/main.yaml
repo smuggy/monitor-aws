@@ -73,43 +73,43 @@
         force_basic_auth: yes
         status_code: [200]
       register: grafana_admin
+
+    - name: create default prometheus datasource
+      uri:
+        url: http://localhost:3000/api/datasources
+        method: POST
+        user: admin
+        password: test1234
+        force_basic_auth: yes
+        body: >-
+          {
+            "name": "prometheus",
+            "type": "prometheus",
+            "url": "http://localhost:9090",
+            "basicAuth": false,
+            "access": "proxy",
+            "isDefault": true
+          }
+        body_format: json
+        return_content: yes
+        status_code: [ 200 ]
+      register: grafana_datasource
+
+    - name: print results
+      debug:
+        msg: "datasource setup results: {{ grafana_datasource }}"
   when: grafana_result.stat.exists == false
 
-- name: create default prometheus datasource
-  uri:
-    url: http://localhost:3000/api/datasources
-    method: POST
-    user: admin
-    password: test1234
-    force_basic_auth: yes
-    body: >-
-      {
-        "name": "prometheus",
-        "type": "prometheus",
-        "url": "http://localhost:9090",
-        "basicAuth": false,
-        "access": "proxy",
-        "isDefault": true
-      }
-    body_format: json
-    return_content: yes
-    status_code: [200]
-  register: grafana_datasource
-
-- name: print results
-  debug:
-    msg: "datasource setup results: {{ grafana_datasource }}"
-
-- name: add node exporter dashboard (11074)
-  uri:
-    url: http://localhost:3000/api/dashboard
-    method: POST
-    user: admin
-    password: test1234
-    force_basic_auth: yes
-    body: "{{ lookup('file', 'node_exporter_dash.json') }}"
-    body_format: json
-    return_content: yes
-    status_code: [200]
-  register: dash_load_results
-  ignore_errors: yes
+#- name: add node exporter dashboard (11074)
+#  uri:
+#    url: http://localhost:3000/api/dashboards/db
+#    method: POST
+#    user: admin
+#    password: test1234
+#    force_basic_auth: yes
+#    body: "{{ lookup('file', 'node_exporter_dash.json') }}"
+#    body_format: json
+#    return_content: yes
+#    status_code: [200]
+#  register: dash_load_results
+#  ignore_errors: yes

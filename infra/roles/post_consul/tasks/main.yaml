@@ -5,8 +5,26 @@
         path: /tmp/acl.out
       register: acl_result
 
+    - name: copy policies
+      copy:
+        src: "{{ item }}"
+        dest: "/tmp/{{ item }}"
+        owner: consul
+        group: consul
+        mode: 0644
+      with_items:
+        - anonymous_policy.hcl
+        - vault_policy.hcl
+        - agent_policy.hcl
+
+    - name: set ip address fact
+      set_fact:
+        consul_addr: "http://{{ ansible_default_ipv4.address }}:8500"
+
     - name: extract management token
-      shell: "consul acl bootstrap -http-addr={{ ansible_default_ipv4.address }}:8500"
+      shell: consul acl bootstrap
+      environment:
+        CONSUL_HTTP_ADDR: "{{ consul_addr }}"
       register: aclout
       when: acl_result.stat.exists == false
 
@@ -18,4 +36,61 @@
         owner: consul
         group: consul
       when: acl_result.stat.exists == false
+
+    - name: set bootstrap fact
+      set_fact:
+        bootstrap_token: "{{ (aclout['stdout'] | from_yaml)['SecretID'] }}"
+
+    - name: create anonymous policy
+      shell: "/usr/local/bin/consul acl policy create -name anonymous -rules=@/tmp/anonymous_policy.hcl"
+      environment:
+        CONSUL_HTTP_ADDR: "{{ consul_addr }}"
+        CONSUL_HTTP_TOKEN: "{{ bootstrap_token }}"
+
+    - name: update anonymous acl
+      shell: "/usr/local/bin/consul acl token update -id=00000000-0000-0000-0000-000000000002 -policy-name=anonymous"
+      environment:
+        CONSUL_HTTP_ADDR: "{{ consul_addr }}"
+        CONSUL_HTTP_TOKEN: "{{ bootstrap_token }}"
+
+    - name: create agent policy
+      shell: "/usr/local/bin/consul acl policy create -name agent -rules=@/tmp/agent_policy.hcl"
+      environment:
+        CONSUL_HTTP_ADDR: "{{ consul_addr }}"
+        CONSUL_HTTP_TOKEN: "{{ bootstrap_token }}"
+
+    - name: create vault policy
+      shell: "/usr/local/bin/consul acl policy create -name vault -rules=@/tmp/vault_policy.hcl"
+      environment:
+        CONSUL_HTTP_ADDR: "{{ consul_addr }}"
+        CONSUL_HTTP_TOKEN: "{{ bootstrap_token }}"
+
+    - name: create agent acl
+      shell: "/usr/local/bin/consul acl token create -description 'agent token' -policy-name=agent"
+      environment:
+        CONSUL_HTTP_ADDR: "{{ consul_addr }}"
+        CONSUL_HTTP_TOKEN: "{{ bootstrap_token }}"
+      register: agent_token_output
+
+    - name: save bootstrap token
+      copy:
+        content: "{{ bootstrap_token }}"
+        dest: /var/lib/consul/secrets/global-management-token
+        mode: 444
+        owner: consul
+        group: consul
+
+    - name: save agent token
+      copy:
+        content: "{{ ( agent_token_output['stdout']| from_yaml)['SecretID'] }}"
+        dest: /var/lib/consul/secrets/agent-token
+        mode: 444
+        owner: consul
+        group: consul
+
+# set fact for bootstrap acl
+# create policies
+# apply anonymous policy to anonymous token
+# create extra management token for vault
+
   run_once: true

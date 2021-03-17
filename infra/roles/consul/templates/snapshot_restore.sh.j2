@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+#
+PATH=/usr/bin:/usr/local/bin
+
+logit() {
+    time=$(date +%H%M%S)
+    echo "${time}: $1"
+}
+
+logit "starting..."
+snapshot_dir="/var/lib/consul/snapshots"
+
+logit "set environment variables"
+export CONSUL_HTTP_ADDR="{{ consul_http_addr }}"
+export CONSUL_HTTP_TOKEN="{{ global_token['stdout'] }}
+
+hostname=$(hostname)
+current_date=$(date +%Y%m%d)
+lastweek_date=$(date --date '-5 days' +%Y%m%d)
+current_timestamp=$(date +%Y%m%d%H%M)
+snapshot_bucket="{{ consul_snapshot_bucket }}"
+snapshot_file="{{ consul_restore_snapshot_name }}"
+
+cd /var/lib/consul
+
+logit "Retrieve snapshot from S3"
+aws s3 cp s3://${snapshot_bucket}/${snapshot_file} ./snapshot_bundle.tar
+if [[ $? -ne 0 ]] ; then
+    logit "Unable to download snapshot file ${snapshot_file} from bucket ${snapshot_bucket}"
+    exit 1
+fi
+
+tar -xf snapshot_bundle.tar
+if [[ $? -ne 0 ]] ; then
+    logit "Unable to untar the snapshot bundle file"
+    exit 1
+fi
+logit "Untarred files"
+
+consul snapshot restore snapshots/backup.snap
+if [[ $? -ne 0 ]] ; then
+    logit "Unable to restore snapshot"
+    exit 1
+fi
+
+rm snapshot_bundle.tar
+logit "Successfully restored snapshot: ${snapshot_file}"
+exit 0
