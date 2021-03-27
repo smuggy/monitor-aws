@@ -7,8 +7,9 @@ locals {
 }
 
 module consul_servers {
+  source = "git::https://github.com/smuggy/terraform-base//aws/compute/instance?ref=main"
+
   count         = local.consul_server_count
-  source        = "./server"
   az            = element(local.az_list, count.index)
   subnet        = lookup(local.subnet_map, element(local.az_list, count.index))
   sec_groups    = [local.sec_group_id, aws_security_group.consul_security_group.id]

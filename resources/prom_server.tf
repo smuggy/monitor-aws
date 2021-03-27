@@ -9,7 +9,7 @@ locals {
 }
 
 module prom_server {
-  source        = "./server"
+  source = "git::https://github.com/smuggy/terraform-base//aws/compute/instance?ref=main"
 
   count         = local.prom_count
   region        = local.region
