@@ -1,32 +1,33 @@
 locals {
-//  server_count       = 3
-  internal_consuls   = formatlist("consul-%02d", range(length(local.subnet_map)))
-  consul_hosts       = formatlist("%s ansible_host=%s", local.internal_consuls, values(module.consul_servers)[*].public_ip)
+  consul_server_count    = 3
+  internal_consuls       = formatlist("consul-%02d", range(length(local.subnet_map)))
+  consul_hosts           = formatlist("%s ansible_host=%s", local.internal_consuls, module.consul_servers.*.public_ip)
   internal_consul_string = join("\n  - ", local.internal_consuls)
   consul_host_group      = join("\n", local.consul_hosts)
-
-//  consul_host_group = ""
 }
-//
+
 module consul_servers {
+  count         = local.consul_server_count
   source        = "./server"
-  server_group  = 1
-  for_each      = local.subnet_map
-  az            = each.key
-  subnet        = each.value
-  sec_groups    = [local.secgrp_id, aws_security_group.consul_security_group.id]
-  app           = "consul"
+  az            = element(local.az_list, count.index)
+  subnet        = lookup(local.subnet_map, element(local.az_list, count.index))
+  sec_groups    = [local.sec_group_id, aws_security_group.consul_security_group.id]
+  app           = "cnsl"
   volume_size   = 4
   key_name      = local.key_name
+  region        = local.region
+
+  name_zone_id    = data.aws_route53_zone.internal.zone_id
+  reverse_zone_id = data.aws_route53_zone.reverse.zone_id
 }
-//
+
 resource aws_route53_record consul_internal {
   zone_id = data.aws_route53_zone.internal.zone_id
   count   = length(local.internal_consuls)
   name    = element(local.internal_consuls, count.index)
   type    = "A"
   ttl     = "300"
-  records = [element(values(module.consul_servers)[*].private_ip, count.index)]
+  records = [element(module.consul_servers.*.private_ip, count.index)]
 }
 
 resource aws_route53_record consul_common {
@@ -34,19 +35,19 @@ resource aws_route53_record consul_common {
   name    = "consul"
   type    = "A"
   ttl     = "300"
-  records = values(module.consul_servers)[*].private_ip
+  records = module.consul_servers.*.private_ip
 }
 //
 output consul_public_ips {
   description = "Public ips for consul servers"
-  value       = values(module.consul_servers)[*].public_ip
+  value       = module.consul_servers.*.public_ip
 }
 
 resource aws_security_group consul_security_group {
   name   = "consul_sg"
   vpc_id = local.vpc_id
 }
-//
+
 resource aws_security_group_rule consul_ui_tcp {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
@@ -91,11 +92,32 @@ resource aws_security_group_rule consul_self_all {
   to_port           = 65535
   self              = true
 }
+
 resource null_resource consul_groups_vars {
   triggers = {
-    root_ip = join(",", sort(values(module.consul_servers)[*].private_ip))
+    root_ip = join(",", sort(module.consul_servers.*.private_ip))
   }
   provisioner local-exec {
     command = "echo 'root_agent_ips:\n  - ${join("\n  - ", local.internal_consuls)}\n' > ../infra/group_vars/consul_servers"
   }
+}
+
+module consul_certs {
+  source = "./cert"
+  count  = local.consul_server_count
+
+  ca_cert_pem = file("../../vpcs/secrets/podspace_ca.pem")
+  ca_key_pem  = file("../../vpcs/secrets/ca_key.pem")
+  alt_name    = "consul.internal.podspace.net"
+  ip_address  = element(module.consul_servers.*.private_ip, count.index)
+  common_name = element(local.internal_consuls, count.index)
+}
+
+resource random_id gossip_key {
+  byte_length = 32
+}
+
+resource local_file gossip_key {
+  filename = "../secrets/gossip_key"
+  content = random_id.gossip_key.b64_std
 }

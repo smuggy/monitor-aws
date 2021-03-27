@@ -55,10 +55,14 @@
     group: consul
     mode: 0755
 
+- name: set fact
+  set_fact:
+    gossip_key: "{{ lookup('file', '../secrets/gossip_key') }}"
+
 - name: create config file
   template:
-    src: consul.json.j2
-    dest: /etc/consul.d/consul.json
+    src: consul.hcl.j2
+    dest: /etc/consul.d/consul.hcl
     owner: consul
     group: consul
     mode: 0444
@@ -97,6 +101,30 @@
     - data
     - secrets
     - snapshots
+
+- name: copy cert
+  copy:
+    src: "../secrets/{{ ansible_hostname }}-cert.pem"
+    dest: "/var/lib/consul/secrets/cert.pem"
+    owner: consul
+    group: consul
+    mode: 0444
+
+- name: copy ca
+  copy:
+    src: "../../vpcs/secrets/podspace_ca.pem"
+    dest: "/var/lib/consul/secrets/ca.pem"
+    owner: consul
+    group: consul
+    mode: 0444
+
+- name: copy cert key
+  copy:
+    src: "../secrets/{{ ansible_hostname }}-key.pem"
+    dest: "/var/lib/consul/secrets/key.pem"
+    owner: consul
+    group: consul
+    mode: 0400
 
 - name: create service file
   copy:

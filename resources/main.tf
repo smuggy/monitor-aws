@@ -2,7 +2,7 @@ data template_file all_hosts {
   template = file("${path.module}/templates/hosts.cfg")
   depends_on = [module.prom_server]
   vars = {
-    prometheus_host_group = join("\n", local.prometheus_host)
+    prometheus_host_group = join("\n", local.prometheus_hosts)
     web_host_group        = ""
 //    consul_host_group     = ""
     consul_host_group     = local.consul_host_group

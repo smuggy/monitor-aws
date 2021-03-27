@@ -9,3 +9,7 @@ output public_ip {
 output instance_id {
   value = aws_instance.server.id
 }
+
+output instance_name {
+  value = local.name
+}

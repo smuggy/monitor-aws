@@ -1,15 +1,18 @@
 datacenter = "us-east-2"
 data_dir = "/var/lib/consul/data"
 server = true
-ui = true
+enable_syslog = true
+ui_config {
+  enabled = true
+}
 
 # TLS Encryption
-# ca_file = ""
-# cert_file = ""
-# key_file = ""
-# verify_incoming_https = false
-# verify_incoming_rpc = false
-# verify_outgoing = true
+ca_file = "/var/lib/consul/secrets/ca.pem"
+cert_file = "/var/lib/consul/secrets/cert.pem"
+key_file = "/var/lib/consul/secrets/key.pem"
+verify_incoming_https = false
+verify_incoming_rpc = false
+verify_outgoing = false
 
 ports {
   http  = 8500
@@ -17,9 +20,9 @@ ports {
 }
 
 # Gossip Encryption
-# encrypt = "common value"
-# encrypt_verify_incoming = true
-# encrypt_verify_outgoing = true
+encrypt = "{{ gossip_key }}"
+encrypt_verify_incoming = true
+encrypt_verify_outgoing = true
 
 acl {
   enabled = true
@@ -36,6 +39,10 @@ disable_update_check = true
 
 client_addr = "{{ bind_address }}"
 bind_addr = "{{ bind_address }}"
+
+#telemetry {
+#  prometheus_retention_time = "60m"
+#}
 
 bootstrap_expect = 3
 retry_join = [

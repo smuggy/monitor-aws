@@ -1,5 +1,7 @@
 variable common_name {}
 
+variable alt_name {}
+
 variable ca_cert_pem {}
 
 variable ca_key_pem {}
@@ -13,7 +15,7 @@ resource tls_private_key key {
 resource tls_cert_request cert_req {
   key_algorithm   = "RSA"
   private_key_pem = tls_private_key.key.private_key_pem
-  dns_names       = [var.common_name, "localhost"]
+  dns_names       = [var.common_name, var.alt_name, "localhost"]
   ip_addresses    = [var.ip_address, "127.0.0.1"]
   subject {
     common_name = var.common_name

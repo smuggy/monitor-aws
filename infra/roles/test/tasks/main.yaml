@@ -1,0 +1,31 @@
+- name: test
+  block:
+
+    - name: debug message
+      debug:
+        msg: "Debug message."
+  run_once: true
+
+- name: test 2
+  debug:
+    msg: "first host is {{ groups['consul_servers'] | first }}"
+
+- name: get file from first
+  command: "cat /var/lib/consul/secrets/agent-token"
+  register: agent_token_output
+  delegate_to: "{{ groups['consul_servers'] | first }}"
+
+- name: set agent token fact
+  set_fact:
+    agent_token: "{{ agent_token_output['stdout'] }}"
+
+- name: set agent token in consul
+  lineinfile:
+    path: /etc/consul.d/consul.hcl
+    insertafter: "AGENT TOKEN HERE"
+    line: "    agent = \"{{ agent_token }}\""
+    state: present
+
+- name: test3
+  debug:
+    msg: "fact is {{ agent_token }}"

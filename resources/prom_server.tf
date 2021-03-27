@@ -1,22 +1,27 @@
 locals {
-  prometheus_host    = formatlist("prometheus-%02d.internal.podspace.net ansible_host=%s",
-                                  range(local.prom_count),
-                                  aws_eip_association.prometheus_ip_assn.public_ip)
-//                                  module.prom_server.public_ip)
   prom_count         = 1
-  prom_instance_list = formatlist("  - %s: %s", module.prom_server.*.instance_id, "prometheus-00.internal.podspace.net")
-  prom_instances     = format("\n%s", join("\n", local.prom_instance_list))
+  prometheus_hosts = formatlist("prometheus-%02d.internal.podspace.net ansible_host=%s",
+                                range(local.prom_count),
+                                aws_eip_association.prometheus_ip_assn.public_ip)
+//                                  module.prom_server.public_ip)
+//  prom_instance_list = formatlist("  - %s: %s", module.prom_server.*.instance_id, "prometheus-00.internal.podspace.net")
+//  prom_instances     = format("\n%s", join("\n", local.prom_instance_list))
 }
 
 module prom_server {
   source        = "./server"
+
+  count         = local.prom_count
+  region        = local.region
   az            = local.az_list[0]
   subnet        = lookup(local.subnet_map, local.az_list[0])
-  sec_groups    = [local.secgrp_id, aws_security_group.prometheus_security_group.id]
+  sec_groups    = [local.sec_group_id, aws_security_group.prometheus_security_group.id]
   app           = "prom"
-  count         = local.prom_count
   key_name      = local.key_name
   instance_type = "t3a.small"
+
+  name_zone_id    = data.aws_route53_zone.internal.zone_id
+  reverse_zone_id = data.aws_route53_zone.reverse.zone_id
 }
 
 resource aws_iam_access_key prom_access {
@@ -38,7 +43,7 @@ resource aws_route53_record prometheus_internal {
   ttl     = 300
   zone_id = data.aws_route53_zone.internal.zone_id
   name    = "prometheus.internal.podspace.net"
-  records = [element(module.prom_server.*.private_ip, 0)]
+  records = module.prom_server.*.private_ip
 }
 
 //output prometheus_public_ip {
@@ -46,14 +51,14 @@ resource aws_route53_record prometheus_internal {
 //  value       = module.prom_server.public_ip
 //}
 
-resource aws_route53_record prometheus_reverse {
-  zone_id = data.aws_route53_zone.reverse.zone_id
-  name    = join(".", reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",
-                              element(module.prom_server.*.private_ip, 0))))
-  type    = "PTR"
-  ttl     = "300"
-  records = ["prometheus.internal.podspace.net"]
-}
+//resource aws_route53_record prometheus_reverse {
+//  zone_id = data.aws_route53_zone.reverse.zone_id
+//  name    = join(".", reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",
+//                              element(module.prom_server.*.private_ip, 0))))
+//  type    = "PTR"
+//  ttl     = "300"
+//  records = ["prometheus.internal.podspace.net"]
+//}
 
 resource aws_security_group prometheus_security_group {
   name   = "prometheus_sg"

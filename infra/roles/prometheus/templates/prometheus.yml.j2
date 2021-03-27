@@ -41,15 +41,15 @@ scrape_configs:
 #    static_configs:
 #      - targets: ['ezkm-0.internal.podspace.net:6443']
 #    metrics_path: '/apis/metrics.k8s.io/v1beta/nodes'
-  - job_name: 'consul'
-    # dashboard 10642 is good for cluster.
-    static_configs:
-      - targets: [{% for item in consul_servers %}
-                     "{{ item }}:8500"{{ "" if loop.last else "," }}
-                  {% endfor %}]
-    metrics_path: '/v1/agent/metrics'
-    params:
-      format: ['prometheus']
+#  - job_name: 'consul'
+#    # dashboard 10642 is good for cluster.
+#    static_configs:
+#      - targets: [{% for item in consul_servers %}
+#                     "{{ item }}:8500"{{ "" if loop.last else "," }}
+#                  {% endfor %}]
+#    metrics_path: '/v1/agent/metrics'
+#    params:
+#      format: ['prometheus']
   - job_name: 'nodes'
     ec2_sd_configs:
       - region: us-east-2
