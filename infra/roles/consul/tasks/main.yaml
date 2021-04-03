@@ -112,7 +112,7 @@
 
 - name: copy ca
   copy:
-    src: "../../vpcs/secrets/podspace_ca.pem"
+    src: "../../vpcs/secrets/local_ca_cert.pem"
     dest: "/var/lib/consul/secrets/ca.pem"
     owner: consul
     group: consul

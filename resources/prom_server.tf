@@ -1,17 +1,15 @@
 locals {
   prom_count         = 1
-  prometheus_hosts = formatlist("prometheus-%02d.internal.podspace.net ansible_host=%s",
-                                range(local.prom_count),
+  prometheus_hosts = formatlist("%s ansible_host=%s",
+                                module.prom_server.instance_name,
                                 aws_eip_association.prometheus_ip_assn.public_ip)
-//                                  module.prom_server.public_ip)
-//  prom_instance_list = formatlist("  - %s: %s", module.prom_server.*.instance_id, "prometheus-00.internal.podspace.net")
-//  prom_instances     = format("\n%s", join("\n", local.prom_instance_list))
+  external_domain = "podspace.net"
+  internal_domain = "podspace.local"
 }
 
 module prom_server {
   source = "git::https://github.com/smuggy/terraform-base//aws/compute/instance?ref=main"
 
-  count         = local.prom_count
   region        = local.region
   az            = local.az_list[0]
   subnet        = lookup(local.subnet_map, local.az_list[0])
@@ -28,37 +26,13 @@ resource aws_iam_access_key prom_access {
   user = "promsa"
 }
 
-//resource aws_route53_record prometheus_internal {
-//  depends_on = [data.null_data_source.namezone]
-//  count = "${data.null_data_source.namezone[0].outputs["value"] != "" && local.prom_count > 0 ? local.prom_count : 0}"
-//  zone_id = data.null_data_source.namezone[0].outputs["value"]
-//  name    = "prometheus"
-//  type    = "A"
-//  ttl     = "300"
-//  records = module.prom_server.private_ip
-//}
-
 resource aws_route53_record prometheus_internal {
   type    = "A"
   ttl     = 300
   zone_id = data.aws_route53_zone.internal.zone_id
-  name    = "prometheus.internal.podspace.net"
-  records = module.prom_server.*.private_ip
+  name    = "prometheus.${local.internal_domain}"
+  records = [module.prom_server.private_ip]
 }
-
-//output prometheus_public_ip {
-//  description = "Public ip of the prometheus server."
-//  value       = module.prom_server.public_ip
-//}
-
-//resource aws_route53_record prometheus_reverse {
-//  zone_id = data.aws_route53_zone.reverse.zone_id
-//  name    = join(".", reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",
-//                              element(module.prom_server.*.private_ip, 0))))
-//  type    = "PTR"
-//  ttl     = "300"
-//  records = ["prometheus.internal.podspace.net"]
-//}
 
 resource aws_security_group prometheus_security_group {
   name   = "prometheus_sg"
@@ -74,12 +48,20 @@ resource aws_security_group_rule prometheus_http {
   to_port           = 80
 }
 
-resource aws_security_group_rule prometheus_tcp {
+resource aws_security_group_rule prometheus_https {
   security_group_id = aws_security_group.prometheus_security_group.id
   type              = "ingress"
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
-//  cidr_blocks       = ["10.20.0.0/16"]
+  from_port         = 443
+  to_port           = 443
+}
+
+resource aws_security_group_rule prometheus_tcp {
+  security_group_id = aws_security_group.prometheus_security_group.id
+  type              = "ingress"
+  protocol          = "tcp"
+  cidr_blocks       = [local.vpc_cidr]
   from_port         = 9090
   to_port           = 9090
 }
@@ -88,12 +70,12 @@ resource aws_security_group_rule grafana_tcp {
   security_group_id = aws_security_group.prometheus_security_group.id
   type              = "ingress"
   protocol          = "tcp"
-  cidr_blocks       = ["10.20.0.0/16"]
+  cidr_blocks       = [local.vpc_cidr]
   from_port         = 3000
   to_port           = 3000
 }
 
 resource aws_eip_association prometheus_ip_assn {
-  instance_id        = element(module.prom_server.*.instance_id, 0)
+  instance_id        = module.prom_server.instance_id
   allocation_id      = data.aws_eip.prometheus_ip.id
 }

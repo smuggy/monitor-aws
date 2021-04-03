@@ -107,7 +107,7 @@
   lineinfile:
     path: /etc/consul.d/consul.hcl
     insertafter: "AGENT TOKEN HERE"
-    line: "    agent = \"{{ agent_token }}\""
+    line: "    default = \"{{ agent_token }}\""
     state: present
 
 - name: restart consul

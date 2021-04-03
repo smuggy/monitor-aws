@@ -37,17 +37,11 @@ resource local_file prom_group_file {
 }
 
 data aws_route53_zone internal {
-  name         = "internal.podspace.net"
+  name         = "podspace.local"
   private_zone = true
 }
 
 data aws_route53_zone reverse {
-  name         = "20.10.in-addr.arpa"
+  name         = "32.10.in-addr.arpa"
   private_zone = true
 }
-
-//resource local_file local_host_vars {
-//  filename        = "../infra/host_vars/localhost"
-//  content         = "instance_ids:${local.prom_instances}${local.log_instances}"
-//  file_permission = 0444
-//}

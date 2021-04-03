@@ -53,7 +53,7 @@ resource aws_security_group_rule consul_ui_tcp {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
   protocol          = "tcp"
-  cidr_blocks       = ["10.20.0.0/16"]
+  cidr_blocks       = [local.vpc_cidr]
   from_port         = 8500
   to_port           = 8501
 }
@@ -62,7 +62,7 @@ resource aws_security_group_rule consul_dns_tcp {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
   protocol          = "tcp"
-  cidr_blocks       = ["10.20.0.0/16"]
+  cidr_blocks       = [local.vpc_cidr]
   from_port         = 8600
   to_port           = 8600
 }
@@ -71,7 +71,7 @@ resource aws_security_group_rule consul_ne_tcp {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
   protocol          = "tcp"
-  cidr_blocks       = ["10.20.0.0/16"]
+  cidr_blocks       = [local.vpc_cidr]
   from_port         = 9100
   to_port           = 9100
 }
@@ -80,7 +80,7 @@ resource aws_security_group_rule consul_dns_udp {
   security_group_id = aws_security_group.consul_security_group.id
   type              = "ingress"
   protocol          = "udp"
-  cidr_blocks       = ["10.20.0.0/16"]
+  cidr_blocks       = [local.vpc_cidr]
   from_port         = 8600
   to_port           = 8600
 }
@@ -107,9 +107,9 @@ module consul_certs {
   source = "./cert"
   count  = local.consul_server_count
 
-  ca_cert_pem = file("../../vpcs/secrets/podspace_ca.pem")
-  ca_key_pem  = file("../../vpcs/secrets/ca_key.pem")
-  alt_name    = "consul.internal.podspace.net"
+  ca_cert_pem = file("../../vpcs/secrets/local_ca_cert.pem")
+  ca_key_pem  = file("../../vpcs/secrets/local_ca_key.pem")
+  alt_name    = "consul.${local.internal_domain}"
   ip_address  = element(module.consul_servers.*.private_ip, count.index)
   common_name = element(local.internal_consuls, count.index)
 }

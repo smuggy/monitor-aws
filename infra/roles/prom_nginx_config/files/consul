@@ -1,17 +1,17 @@
 upstream consul_server {
-  server consul.internal.podspace.net:8500;
+  server consul.podspace.local:8500;
 }
 
 upstream grafana_server {
-  server prometheus.internal.podspace.net:3000;
+  server prometheus.podspace.local:3000;
 }
 
 upstream prometheus_server {
-  server prometheus.internal.podspace.net:9090;
+  server prometheus.podspace.local:9090;
 }
 
 #upstream kibana_server {
-#  server kibana.internal.podspace.net:5601;
+#  server kibana.podspace.local:5601;
 #}
 
 server {
