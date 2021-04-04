@@ -1,5 +1,5 @@
 upstream consul_server {
-  server consul.podspace.local:8500;
+  server consul.podspace.local:8501;
 }
 
 upstream grafana_server {
@@ -14,23 +14,74 @@ upstream prometheus_server {
 #  server kibana.podspace.local:5601;
 #}
 
+#server {
+#  listen 80 default;
+#  location /consul/ {
+#    proxy_pass http://consul_server/;
+#    proxy_set_header Host $host;
+#    proxy_set_header Referer $http_referer;
+#    proxy_set_header X-Forwarded-For $remote_addr;
+#    proxy_set_header X-Forwarded-Proto $scheme;
+
+#    sub_filter '"/ui/' '"/consul/ui/';
+#    sub_filter "'/ui/" "'/consul/ui/";
+#    sub_filter_types application/javascript;
+#    sub_filter_once off;
+#  }
+
+#  location /v1/ {
+#    proxy_pass http://consul_server/v1/;
+#  }
+
+#  location /grafana/ {
+  # need to update /etc/grafana/grafana.ini to specify both:
+  # root_url = http://prometheus.internal.podspace.net/grafana
+  # serve_from_sub_path = true
+#    proxy_pass http://grafana_server/;
+#  }
+
+#  location /prometheus/ {
+#    proxy_pass http://prometheus_server/;
+#    proxy_redirect / /prometheus/;
+#    proxy_set_header Host $host;
+#    proxy_set_header Referer $http_referer;
+#    proxy_set_header X-Forwarded-For $remote_addr;
+#    proxy_set_header X-Forwarded-Proto $scheme;
+
+#    sub_filter 'href="/' 'href="/prometheus/';
+#    sub_filter 'src="/' 'src="/prometheus/';
+#    sub_filter_types text/html;
+#    sub_filter_once off;
+#  }
+
+#  location /kibana/ {
+#    proxy_pass http://kibana_server/;
+#  }
+#}
+
 server {
-  listen 80 default;
+  listen 443 ssl;
+  server_name         prometheus.podspace.net;
+  ssl_certificate     cert.pem;
+  ssl_certificate_key key.pem;
+  ssl_protocols       TLSv1.2 TLSv1.3;
+  ssl_ciphers         HIGH:!aNULL:!MD5;
+
   location /consul/ {
-    proxy_pass http://consul_server/;
+    proxy_pass https://consul_server/consul/;
     proxy_set_header Host $host;
     proxy_set_header Referer $http_referer;
     proxy_set_header X-Forwarded-For $remote_addr;
     proxy_set_header X-Forwarded-Proto $scheme;
 
-    sub_filter '"/ui/' '"/consul/ui/';
-    sub_filter "'/ui/" "'/consul/ui/";
-    sub_filter_types application/javascript;
-    sub_filter_once off;
+#    sub_filter '"/ui/' '"/consul/ui/';
+#    sub_filter "'/ui/" "'/consul/ui/";
+#    sub_filter_types application/javascript;
+#    sub_filter_once off;
   }
 
   location /v1/ {
-    proxy_pass http://consul_server/v1/;
+    proxy_pass https://consul_server/v1/;
   }
 
   location /grafana/ {
@@ -53,8 +104,4 @@ server {
     sub_filter_types text/html;
     sub_filter_once off;
   }
-
-#  location /kibana/ {
-#    proxy_pass http://kibana_server/;
-#  }
 }

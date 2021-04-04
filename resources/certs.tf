@@ -11,12 +11,12 @@ module nginx_cert {
 
 resource local_file nginx_external_key_file {
   file_permission = "0400"
-  filename        = "../secrets/${module.prom_server.instance_name}-public-key.pem"
+  filename        = "../secrets/prometheus_public_key.pem"
   content         = module.nginx_cert.private_key
 }
 
 resource local_file vault_node_cert_file {
   file_permission = "0444"
-  filename        = "../secrets/${module.prom_server.instance_name}-public-cert.pem"
+  filename        = "../secrets/prometheus_public_cert.pem"
   content         = module.nginx_cert.certificate_pem
 }

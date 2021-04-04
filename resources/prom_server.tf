@@ -1,7 +1,7 @@
 locals {
   prom_count         = 1
   prometheus_hosts = formatlist("%s ansible_host=%s",
-                                module.prom_server.instance_name,
+                                "prometheus",
                                 aws_eip_association.prometheus_ip_assn.public_ip)
   external_domain = "podspace.net"
   internal_domain = "podspace.local"
@@ -12,7 +12,7 @@ module prom_server {
 
   region        = local.region
   az            = local.az_list[0]
-  subnet        = lookup(local.subnet_map, local.az_list[0])
+  subnet        = lookup(local.public_subnet_map, local.az_list[0])
   sec_groups    = [local.sec_group_id, aws_security_group.prometheus_security_group.id]
   app           = "prom"
   key_name      = local.key_name
@@ -63,7 +63,7 @@ resource aws_security_group_rule prometheus_tcp {
   protocol          = "tcp"
   cidr_blocks       = [local.vpc_cidr]
   from_port         = 9090
-  to_port           = 9090
+  to_port           = 9095
 }
 
 resource aws_security_group_rule grafana_tcp {

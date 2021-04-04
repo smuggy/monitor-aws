@@ -4,6 +4,7 @@ server = true
 enable_syslog = true
 ui_config {
   enabled = true
+  content_path = "/consul/"
 }
 
 # TLS Encryption
@@ -12,10 +13,10 @@ cert_file = "/var/lib/consul/secrets/cert.pem"
 key_file = "/var/lib/consul/secrets/key.pem"
 verify_incoming_https = false
 verify_incoming_rpc = false
-verify_outgoing = false
+verify_outgoing = true
 
 ports {
-  http  = 8500
+  http  = -1
   https = 8501
 }
 

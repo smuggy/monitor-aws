@@ -4,3 +4,16 @@
     state: present
   notify:
   - start nginx
+
+- name: copy cert
+  copy:
+    src: "../secrets/prometheus_public_cert.pem"
+    dest: "/etc/nginx/cert.pem"
+    mode: 0444
+
+- name: copy cert key
+  copy:
+    src: "../secrets/prometheus_public_key.pem"
+    dest: "/etc/nginx/key.pem"
+    mode: 0400
+

@@ -19,7 +19,7 @@
 
     - name: set ip address fact
       set_fact:
-        consul_addr: "http://{{ ansible_default_ipv4.address }}:8500"
+        consul_addr: "https://{{ ansible_default_ipv4.address }}:8501"
 
     - name: extract management token
       shell: consul acl bootstrap

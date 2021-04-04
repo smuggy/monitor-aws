@@ -50,4 +50,3 @@
     mode: 0644
   notify:
   - start node_exporter
-

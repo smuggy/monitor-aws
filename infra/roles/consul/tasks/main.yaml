@@ -1,51 +1,51 @@
-- name: install unzip
-  apt:
-    name: unzip
-    state: present
-
-- name: create consul service account
-  include_role:
-    name: service_account
-  vars:
-    account_name: consul
-
-- name: is consul installed
-  stat:
-    path: /usr/local/bin/consul
-  register: consul_result
-
-- name: download and install consul
-  block:
-    - name: create download directory
-      file:
-        path: /tmp/consul_download
-        state: directory
-
-    - name: get consul archive
-      get_url:
-        url: "https://releases.hashicorp.com/consul/{{ consul_version }}/{{ consul_artifact }}"
-        dest: /tmp/consul_download
-
-    - name: unarchive consul
-      unarchive:
-        src: "/tmp/consul_download/{{ consul_artifact }}"
-        dest: /tmp/consul_download
-        remote_src: yes
-
-    - name: copy consul to usr local bin
-      copy:
-        src: /tmp/consul_download/consul
-        dest: /usr/local/bin/consul
-        mode: 0755
-        owner: consul
-        group: consul
-        remote_src: yes
-
-    - name: remove consul download directory
-      file:
-        path: /tmp/consul_download
-        state: absent
-  when: consul_result.stat.exists == false
+#- name: install unzip
+#  apt:
+#    name: unzip
+#    state: present
+#
+#- name: create consul service account
+#  include_role:
+#    name: service_account
+#  vars:
+#    account_name: consul
+#
+#- name: is consul installed
+#  stat:
+#    path: /usr/local/bin/consul
+#  register: consul_result
+#
+#- name: download and install consul
+#  block:
+#    - name: create download directory
+#      file:
+#        path: /tmp/consul_download
+#        state: directory
+#
+#    - name: get consul archive
+#      get_url:
+#        url: "https://releases.hashicorp.com/consul/{{ consul_version }}/{{ consul_artifact }}"
+#        dest: /tmp/consul_download
+#
+#    - name: unarchive consul
+#      unarchive:
+#        src: "/tmp/consul_download/{{ consul_artifact }}"
+#        dest: /tmp/consul_download
+#        remote_src: yes
+#
+#    - name: copy consul to usr local bin
+#      copy:
+#        src: /tmp/consul_download/consul
+#        dest: /usr/local/bin/consul
+#        mode: 0755
+#        owner: consul
+#        group: consul
+#        remote_src: yes
+#
+#    - name: remove consul download directory
+#      file:
+#        path: /tmp/consul_download
+#        state: absent
+#  when: consul_result.stat.exists == false
 
 - name: create etc consul directory
   file:
@@ -126,10 +126,10 @@
     group: consul
     mode: 0400
 
-- name: create service file
-  copy:
-    src: consul.service
-    dest: /etc/systemd/system/consul.service
-    mode: 0644
-  notify:
-  - restart consul
+#- name: create service file
+#  copy:
+#    src: consul.service
+#    dest: /etc/systemd/system/consul.service
+#    mode: 0644
+#  notify:
+#  - restart consul

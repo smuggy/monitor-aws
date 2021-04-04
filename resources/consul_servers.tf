@@ -1,7 +1,7 @@
 locals {
   consul_server_count    = 3
-  internal_consuls       = formatlist("consul-%02d", range(length(local.subnet_map)))
-  consul_hosts           = formatlist("%s ansible_host=%s", local.internal_consuls, module.consul_servers.*.public_ip)
+  internal_consuls       = formatlist("consul-%02d", range(length(local.private_subnet_map)))
+  consul_hosts           = formatlist("%s ansible_host=%s", local.internal_consuls, module.consul_servers.*.private_ip)
   internal_consul_string = join("\n  - ", local.internal_consuls)
   consul_host_group      = join("\n", local.consul_hosts)
 }
@@ -11,12 +11,13 @@ module consul_servers {
 
   count         = local.consul_server_count
   az            = element(local.az_list, count.index)
-  subnet        = lookup(local.subnet_map, element(local.az_list, count.index))
+  subnet        = lookup(local.private_subnet_map, element(local.az_list, count.index))
   sec_groups    = [local.sec_group_id, aws_security_group.consul_security_group.id]
   app           = "cnsl"
   volume_size   = 4
   key_name      = local.key_name
   region        = local.region
+  ami_id        = data.aws_ami.base.id
 
   name_zone_id    = data.aws_route53_zone.internal.zone_id
   reverse_zone_id = data.aws_route53_zone.reverse.zone_id
@@ -103,6 +104,16 @@ resource null_resource consul_groups_vars {
   }
 }
 
+resource null_resource consul_host_vars {
+  count = local.consul_server_count
+  triggers = {
+    root_ip = module.consul_servers.*.private_ip[count.index]
+  }
+  provisioner local-exec {
+    command = "echo 'private_host: true\n' > ../infra/host_vars/${local.internal_consuls[count.index]}"
+  }
+}
+
 module consul_certs {
   source = "./cert"
   count  = local.consul_server_count
@@ -121,4 +132,27 @@ resource random_id gossip_key {
 resource local_file gossip_key {
   filename = "../secrets/gossip_key"
   content = random_id.gossip_key.b64_std
+}
+
+data aws_caller_identity current {}
+
+locals {
+  ami_owner    = data.aws_caller_identity.current.account_id
+}
+
+# 18.04 LTS Bionic amd 64 hvm:ebs-ssd
+data aws_ami base {
+  most_recent = true
+
+  filter {
+    name = "name"
+    values = ["base-ami"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = [local.ami_owner]  # Canonical Group Limited
 }

@@ -2,6 +2,8 @@
   apt:
     update_cache: yes
     upgrade: "yes"
+  ignore_errors: yes
+  when: private_host == "false"
 
 - name: update resolve domain
   ini_file:
@@ -26,3 +28,18 @@
     regexp="^{{ ansible_default_ipv4.address }}.+$"
     line="{{ ansible_default_ipv4.address }} {{ inventory_hostname }} {{ ansible_hostname }}"
   become: true
+
+- name: copy public ca cert
+  copy:
+    src: ../../vpcs/secrets/podspace_ca_cert.pem
+    dest: /usr/local/share/ca-certificates/podspace-ca-cert.crt
+    mode: 0444
+
+- name: copy internal ca cert
+  copy:
+    src: ../../vpcs/secrets/local_ca_cert.pem
+    dest: /usr/local/share/ca-certificates/local-ca-cert.crt
+    mode: 0444
+
+- name: run update ca certificates
+  shell: update-ca-certificates
