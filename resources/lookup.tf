@@ -85,15 +85,3 @@ data aws_subnet private_subnet_three {
     values = ["private"]
   }
 }
-
-//data aws_eip prometheus_ip {
-//  filter {
-//    name = "tag:Name"
-//    values = ["prometheus-ip"]
-//  }
-//}
-//
-//output prometheus_ip {
-//  description = "Public ip of the prometheus server (Elastic IP)."
-//  value       = data.aws_eip.prometheus_ip.public_ip
-//}

@@ -39,10 +39,10 @@ resource aws_route53_record consul_common {
   ttl     = "300"
   records = module.consul_servers.*.private_ip
 }
-//
-output consul_public_ips {
-  description = "Public ips for consul servers"
-  value       = module.consul_servers.*.public_ip
+
+output consul_private_ips {
+  description = "Private ips for consul servers"
+  value       = module.consul_servers.*.private_ip
 }
 
 resource aws_security_group consul_security_group {
@@ -114,16 +114,6 @@ resource null_resource consul_host_vars {
   }
 }
 
-module consul_certs {
-  source = "./cert"
-  count  = local.consul_server_count
-
-  ca_cert_pem = file("../../vpcs/secrets/local_ca_cert.pem")
-  ca_key_pem  = file("../../vpcs/secrets/local_ca_key.pem")
-  alt_name    = "consul.${local.internal_domain}"
-  ip_address  = element(module.consul_servers.*.private_ip, count.index)
-  common_name = element(local.internal_consuls, count.index)
-}
 
 resource random_id gossip_key {
   byte_length = 32
