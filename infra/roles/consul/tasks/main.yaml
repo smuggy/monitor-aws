@@ -69,6 +69,7 @@
   vars:
     bind_address: "{{ ansible_default_ipv4.address }}"
     ip_list: "{{ root_agent_ips }}"
+    node_count: "{{ root_agent_ips | length }}"
   notify:
   - restart consul
 

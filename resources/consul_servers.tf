@@ -100,7 +100,7 @@ resource null_resource consul_groups_vars {
     root_ip = join(",", sort(module.consul_servers.*.private_ip))
   }
   provisioner local-exec {
-    command = "echo 'root_agent_ips:\n  - ${join("\n  - ", local.internal_consuls)}\n' > ../infra/group_vars/consul_servers"
+    command = "echo 'root_agent_ips:\n  - ${join("\n  - ", local.internal_consuls)}\nregion: ${local.region}' > ../infra/group_vars/consul_servers"
   }
 }
 

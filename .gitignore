@@ -11,3 +11,4 @@ infra/group_vars/*
 infra/host_vars/*
 .terraform.lock.hcl
 .DS_Store
+test/

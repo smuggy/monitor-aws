@@ -15,7 +15,7 @@ resource local_file nginx_external_key_file {
   content         = module.nginx_cert.private_key
 }
 
-resource local_file vault_node_cert_file {
+resource local_file prometheus_node_cert_file {
   file_permission = "0444"
   filename        = "../secrets/prometheus_public_cert.pem"
   content         = module.nginx_cert.certificate_pem

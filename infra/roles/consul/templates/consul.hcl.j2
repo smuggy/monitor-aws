@@ -1,4 +1,4 @@
-datacenter = "us-east-2"
+datacenter = "{{ region }}"
 data_dir = "/var/lib/consul/data"
 server = true
 enable_syslog = true
@@ -45,7 +45,7 @@ bind_addr = "{{ bind_address }}"
 #  prometheus_retention_time = "60m"
 #}
 
-bootstrap_expect = 3
+bootstrap_expect = {{ node_count }}
 retry_join = [
 {% for item in ip_list %}
  "{{ item }}"{{ "" if loop.last else ","}}
