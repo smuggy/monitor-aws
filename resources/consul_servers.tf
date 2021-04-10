@@ -1,6 +1,6 @@
 locals {
-  consul_server_count    = 3
-  internal_consuls       = formatlist("consul-%02d", range(length(local.private_subnet_map)))
+  consul_server_count    = 1
+  internal_consuls       = formatlist("consul-%02d", range(local.consul_server_count))
   consul_hosts           = formatlist("%s ansible_host=%s", local.internal_consuls, module.consul_servers.*.private_ip)
   internal_consul_string = join("\n  - ", local.internal_consuls)
   consul_host_group      = join("\n", local.consul_hosts)
@@ -134,13 +134,6 @@ resource local_file gossip_key {
   content = random_id.gossip_key.b64_std
 }
 
-data aws_caller_identity current {}
-
-locals {
-  ami_owner    = data.aws_caller_identity.current.account_id
-}
-
-# 18.04 LTS Bionic amd 64 hvm:ebs-ssd
 data aws_ami base {
   most_recent = true
 
@@ -154,5 +147,5 @@ data aws_ami base {
     values = ["hvm"]
   }
 
-  owners = [local.ami_owner]  # Canonical Group Limited
+  owners = ["self"]
 }

@@ -4,14 +4,14 @@ locals {
 
 resource local_file private_key_file {
   sensitive_content    = module.utility_key_pair.private_key_pem
-  filename             = "../secrets/utility-private-key.pem"
+  filename             = "../secrets/utility-key"
   file_permission      = 0400
   directory_permission = 0755
 }
 
 resource local_file public_key_file {
   content              = module.utility_key_pair.public_key_ssh
-  filename             = "../secrets/utility-public-key.pem"
+  filename             = "../secrets/utility-key.pub"
   file_permission      = 0644
   directory_permission = 0755
 }

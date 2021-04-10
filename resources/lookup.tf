@@ -1,4 +1,6 @@
 locals {
+  internal_domain    = "podspace.local"
+  external_domain    = "podspace.net"
   vpc_id             = data.aws_vpc.scratch_vpc.id
   region             = data.aws_region.current.name
   vpc_cidr           = data.aws_vpc.scratch_vpc.cidr_block
@@ -84,14 +86,14 @@ data aws_subnet private_subnet_three {
   }
 }
 
-data aws_eip prometheus_ip {
-  filter {
-    name = "tag:Name"
-    values = ["prometheus-ip"]
-  }
-}
-
-output prometheus_ip {
-  description = "Public ip of the prometheus server (Elastic IP)."
-  value       = data.aws_eip.prometheus_ip.public_ip
-}
+//data aws_eip prometheus_ip {
+//  filter {
+//    name = "tag:Name"
+//    values = ["prometheus-ip"]
+//  }
+//}
+//
+//output prometheus_ip {
+//  description = "Public ip of the prometheus server (Elastic IP)."
+//  value       = data.aws_eip.prometheus_ip.public_ip
+//}

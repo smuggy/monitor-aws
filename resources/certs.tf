@@ -4,7 +4,7 @@ module nginx_cert {
   common_name     = "prometheus.${local.external_domain}"
   alternate_names = ["prometheus.${local.external_domain}"]
 
-  alternate_ips   = [data.aws_eip.prometheus_ip.public_ip]
+  alternate_ips   = [module.prom_server.public_ip]
   ca_private_key  = file("../../vpcs/secrets/podspace_ca_key.pem")
   ca_certificate  = file("../../vpcs/secrets/podspace_ca_cert.pem")
 }
