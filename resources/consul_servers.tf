@@ -14,6 +14,8 @@ module consul_cluster {
   vpc_id        = local.vpc_id
   ssh_key_name  = local.key_name
   region        = local.region
+  ca_cert       = file("../../vpcs/secrets/local_ca_cert.pem")
+  ca_key        = file("../../vpcs/secrets/local_ca_key.pem")
 }
 
 resource null_resource consul_groups_vars {
@@ -21,17 +23,7 @@ resource null_resource consul_groups_vars {
     root_ip = join(",", sort(module.consul_cluster.private_ips))
   }
   provisioner local-exec {
-    command = "echo 'root_agent_ips:\n  - ${join("\n  - ", module.consul_cluster.server_names)}\nregion: ${local.region}' > ../infra/group_vars/consul_servers"
-  }
-}
-
-resource null_resource consul_host_vars {
-  count = local.consul_server_count
-  triggers = {
-    root_ip = module.consul_cluster.private_ips[count.index]
-  }
-  provisioner local-exec {
-    command = "echo 'private_host: true\n' > ../infra/host_vars/${module.consul_cluster.server_names[count.index]}"
+    command = "echo '${module.consul_cluster.cluster_config}' > ../infra/group_vars/consul_servers"
   }
 }
 
@@ -44,24 +36,11 @@ resource local_file gossip_key {
   content  = random_id.gossip_key.b64_std
 }
 
-module consul_certs {
-  source = "git::https://github.com/smuggy/terraform-base//tls/entity_certificate?ref=main"
-  count  = local.consul_server_count
-
-  common_name     = element(module.consul_cluster.server_names, count.index)
-  alternate_names = ["consul.${local.internal_domain}",
-                     "${element(module.consul_cluster.instance_names, count.index)}.${local.internal_domain}",
-                     "${element(module.consul_cluster.server_names, count.index)}.${local.internal_domain}"]
-  alternate_ips   = [element(module.consul_cluster.private_ips, count.index)]
-  ca_private_key  = file("../../vpcs/secrets/local_ca_key.pem")
-  ca_certificate  = file("../../vpcs/secrets/local_ca_cert.pem")
-}
-
 resource local_file key {
   count = local.consul_server_count
 
   filename          = "../secrets/${element(module.consul_cluster.server_names, count.index)}-key.pem"
-  sensitive_content = element(module.consul_certs.*.private_key, count.index)
+  sensitive_content = element(module.consul_cluster.consul_keys, count.index)
   file_permission   = 0440
 }
 
@@ -69,7 +48,7 @@ resource local_file cert {
   count = local.consul_server_count
 
   filename        = "../secrets/${element(module.consul_cluster.server_names, count.index)}-cert.pem"
-  content         = element(module.consul_certs.*.certificate_pem, count.index)
+  content         = element(module.consul_cluster.consul_certs, count.index)
   file_permission = 0444
 }
 

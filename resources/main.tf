@@ -23,7 +23,6 @@ resource local_file host_file {
 data template_file prom_group_vars {
   template = file("templates/prom_groups_vars.tpl")
   vars = {
-//    consuls = ""
     consuls    = local.internal_consul_string
     access_key = aws_iam_access_key.prom_access.id
     secret_key = aws_iam_access_key.prom_access.secret
