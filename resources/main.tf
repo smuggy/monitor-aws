@@ -49,13 +49,3 @@ resource local_file ssh_config {
   content         = data.template_file.ssh_config.rendered
   file_permission = 0644
 }
-
-data aws_route53_zone internal {
-  name         = "podspace.local"
-  private_zone = true
-}
-
-data aws_route53_zone reverse {
-  name         = "32.10.in-addr.arpa"
-  private_zone = true
-}
