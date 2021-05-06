@@ -1,13 +1,13 @@
-upstream consul_server {
-  server consul.podspace.local:8501;
-}
+#upstream consul_server {
+#  server consul.podspace.cloud:8501;
+#}
 
 upstream grafana_server {
-  server prometheus.podspace.local:3000;
+  server prometheus.podspace.cloud:3000;
 }
 
 upstream prometheus_server {
-  server prometheus.podspace.local:9090;
+  server prometheus.podspace.cloud:9090;
 }
 
 #upstream kibana_server {
@@ -67,22 +67,22 @@ server {
   ssl_protocols       TLSv1.2 TLSv1.3;
   ssl_ciphers         HIGH:!aNULL:!MD5;
 
-  location /consul/ {
-    proxy_pass https://consul_server/consul/;
-    proxy_set_header Host $host;
-    proxy_set_header Referer $http_referer;
-    proxy_set_header X-Forwarded-For $remote_addr;
-    proxy_set_header X-Forwarded-Proto $scheme;
+#  location /consul/ {
+#    proxy_pass https://consul_server/consul/;
+#    proxy_set_header Host $host;
+#    proxy_set_header Referer $http_referer;
+#    proxy_set_header X-Forwarded-For $remote_addr;
+#    proxy_set_header X-Forwarded-Proto $scheme;
 
 #    sub_filter '"/ui/' '"/consul/ui/';
 #    sub_filter "'/ui/" "'/consul/ui/";
 #    sub_filter_types application/javascript;
 #    sub_filter_once off;
-  }
+#  }
 
-  location /v1/ {
-    proxy_pass https://consul_server/v1/;
-  }
+#  location /v1/ {
+#    proxy_pass https://consul_server/v1/;
+#  }
 
   location /grafana/ {
   # need to update /etc/grafana/grafana.ini to specify both:

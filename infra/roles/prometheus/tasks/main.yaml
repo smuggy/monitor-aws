@@ -77,6 +77,17 @@
   vars:
     ec2_access_key_var: "{{ ec2_access_key }}"
     ec2_secret_key_var: "{{ ec2_secret_key }}"
+  when: provider == 'aws'
+
+- name: copy environment file
+  copy:
+    src: prometheus.env
+    dest: /etc/prometheus/prometheus.env
+    owner: prometheus
+    group: prometheus
+    mode: 0755
+  when: provider == 'azure'
+
 
 - name: create data directory
   file:
