@@ -1,92 +1,45 @@
 locals {
-  prometheus_host = format("prometheus ansible_host=%s", azurerm_linux_virtual_machine.prometheus.public_ip_address)
-  internal_domain = "podspace.cloud"
-  external_domain = "podspace.net"
-  ip_portion = join(".", reverse(regex("[[:digit:]]*.[[:digit:]]*.([[:digit:]]*).([[:digit:]]*)",
-                    azurerm_linux_virtual_machine.prometheus.private_ip_address)))
+  utility_rg_name     = module.rg.rg_name
+  utility_rg_location = module.rg.rg_location
+  prometheus_host     = format("prometheus ansible_host=%s", module.prometheus_server.public_ip)
+  internal_domain     = "podspace.cloud"
+  external_domain     = "podspace.net"
 }
 
-resource azurerm_public_ip prometheus {
-  name                = "prometheus-public-ip"
-  resource_group_name = local.rg_name
-  location            = data.azurerm_resource_group.resource.location
-  allocation_method   = "Static"
-  ip_version          = "IPv4"
-  zones               = ["1"]
-  sku                 = "Standard"
-
-  tags = {
-    environment = "sandbox"
-  }
+module rg {
+  source = "git::https://github.com/smuggy/terraform-base//azure/management/resource_group?ref=main"
+  name     = "utility"
+  group    = "sandbox"
+  location = "Central US"
 }
 
-resource azurerm_network_interface prometheus_nic {
-  name                      = "prometheus-nic"
-  location                  = data.azurerm_resource_group.resource.location
-  resource_group_name       = local.rg_name
+module prometheus_server {
+  source = "git::https://github.com/smuggy/terraform-base//azure/compute/linux_vm?ref=main"
 
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = data.azurerm_subnet.subnet1.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.prometheus.id
-  }
+  app            = "prom"
+  dns_rg_name    = local.rg_net_name
+  subnet         = data.azurerm_subnet.subnet_1.id
+  rg_name        = local.utility_rg_name
+  rg_location    = local.utility_rg_location
+  zone           = "1"
+  ami_id         = data.azurerm_shared_image_version.ubuntu.id
+  ssh_public_key = tls_private_key.key.public_key_openssh
+  identity = [{id_type="UserAssigned", id=azurerm_user_assigned_identity.prom_identity.id}]
+//  addl_tags = {
+//    ServerGroup = "prometheus-server-1"
+//    App         = "prometheus"
+//    Name        = "prometheus"
+//    NodeExport  = "true"
+//  }
 }
 
 resource azurerm_network_interface_security_group_association nsg {
-  network_interface_id      = azurerm_network_interface.prometheus_nic.id
+  network_interface_id      = module.prometheus_server.nic
   network_security_group_id = data.azurerm_network_security_group.vn_group.id
 }
 
-resource azurerm_linux_virtual_machine prometheus {
-  name                = "prometheus"
-  resource_group_name = local.rg_name
-  location            = data.azurerm_resource_group.resource.location
-  size                = "Standard_B1s"
-  admin_username      = "ubuntu"
-  network_interface_ids = [
-    azurerm_network_interface.prometheus_nic.id
-  ]
-
-  admin_ssh_key {
-    username   = "ubuntu"
-    public_key = tls_private_key.key.public_key_openssh
-  }
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-  }
-
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.prom_identity.id]
-  }
-
-//  source_image_id = local.image_id
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
-    version   = "latest"
-  }
-
-  zone        = "1"
-
-  tags = {
-    ServerGroup = "prometheus-server-1"
-    App         = "prometheus"
-    Name        = "prometheus"
-    NodeExport  = "true"
-  }
-}
-
-output public_ip {
-  value = azurerm_linux_virtual_machine.prometheus.public_ip_address
-}
-
 output prom_public {
-  value = azurerm_linux_virtual_machine.prometheus.public_ip_address
+  value = module.prometheus_server.public_ip
 }
 
 module nginx_cert {
@@ -95,7 +48,7 @@ module nginx_cert {
   common_name     = "prometheus.${local.external_domain}"
   alternate_names = ["prometheus.${local.external_domain}"]
 
-  alternate_ips   = [azurerm_linux_virtual_machine.prometheus.public_ip_address]
+  alternate_ips   = [module.prometheus_server.public_ip]
   ca_private_key  = file("../../vpcs/secrets/podspace_ca_key.pem")
   ca_certificate  = file("../../vpcs/secrets/podspace_ca_cert.pem")
 }
@@ -114,8 +67,8 @@ resource local_file nginx_external_cert_file {
 
 resource azurerm_role_definition prom_role {
   name              = "prom-role"
-  assignable_scopes = [data.azurerm_resource_group.resource.id]
-  scope             = data.azurerm_resource_group.resource.id
+  assignable_scopes = [module.rg.rg_id]
+  scope             = module.rg.rg_id
 
   permissions {
     actions     = ["Microsoft.Compute/virtualMachines/read",
@@ -126,13 +79,13 @@ resource azurerm_role_definition prom_role {
 
 resource azurerm_user_assigned_identity prom_identity {
   name                = "prom-access"
-  resource_group_name = data.azurerm_resource_group.resource.name
-  location            = data.azurerm_resource_group.resource.location
+  resource_group_name = local.utility_rg_name
+  location            = local.utility_rg_location
 }
 
 resource azurerm_role_assignment prom {
   principal_id         = azurerm_user_assigned_identity.prom_identity.principal_id
-  scope                = data.azurerm_resource_group.resource.id
+  scope                = module.rg.rg_id
   role_definition_name = azurerm_role_definition.prom_role.name
 }
 
@@ -147,17 +100,9 @@ resource local_file group_vars {
 }
 
 resource azurerm_private_dns_a_record prom {
-  resource_group_name = data.azurerm_resource_group.resource.name
+  resource_group_name = local.rg_net_name
   zone_name           = local.internal_domain
   ttl                 = 3600
   name                = "prometheus"
-  records             = [azurerm_linux_virtual_machine.prometheus.private_ip_address]
-}
-
-resource azurerm_private_dns_ptr_record reverse {
-  resource_group_name = data.azurerm_resource_group.resource.name
-  zone_name           = "48.10.in-addr.arpa"
-  ttl                 = 3600
-  name                = local.ip_portion
-  records             = ["prometheus.${local.internal_domain}"]
+  records             = [module.prometheus_server.private_ip]
 }
