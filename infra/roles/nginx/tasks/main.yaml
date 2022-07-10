@@ -16,4 +16,3 @@
     src: "../secrets/prometheus_public_key.pem"
     dest: "/etc/nginx/key.pem"
     mode: 0400
-

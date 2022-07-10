@@ -1,9 +1,5 @@
 locals {
-  utility_rg_name     = module.rg.rg_name
-  utility_rg_location = module.rg.rg_location
   prometheus_host     = format("prometheus ansible_host=%s", module.prometheus_server.public_ip)
-  internal_domain     = "podspace.cloud"
-  external_domain     = "podspace.net"
 }
 
 module rg {
@@ -14,79 +10,31 @@ module rg {
 }
 
 module prometheus_server {
-  source = "git::https://github.com/smuggy/terraform-base//azure/compute/linux_vm?ref=main"
+  source = "git::https://github.com/smuggy/tf-services//prometheus/azure?ref=main"
 
-  app            = "prom"
-  dns_rg_name    = local.rg_net_name
-  subnet         = data.azurerm_subnet.subnet_1.id
-  rg_name        = local.utility_rg_name
-  rg_location    = local.utility_rg_location
-  zone           = "1"
-  ami_id         = data.azurerm_shared_image_version.ubuntu.id
-  ssh_public_key = tls_private_key.key.public_key_openssh
-  identity = [{id_type="UserAssigned", id=azurerm_user_assigned_identity.prom_identity.id}]
-//  addl_tags = {
-//    ServerGroup = "prometheus-server-1"
-//    App         = "prometheus"
-//    Name        = "prometheus"
-//    NodeExport  = "true"
-//  }
-}
-
-resource azurerm_network_interface_security_group_association nsg {
-  network_interface_id      = module.prometheus_server.nic
-  network_security_group_id = data.azurerm_network_security_group.vn_group.id
+  app_rg_name = module.rg.rg_name
+  ca_cert_key = file("../../vpcs/secrets/podspace_ca_key.pem")
+  ca_cert_pem = file("../../vpcs/secrets/podspace_ca_cert.pem")
+  network_rg_name        = data.azurerm_resource_group.net_resource.name
+  network_rg_subnet_name = data.azurerm_subnet.subnet_1.name
+  network_rg_vnet_name   = local.vn_name
+  depends_on = [module.rg]
 }
 
 output prom_public {
   value = module.prometheus_server.public_ip
 }
 
-module nginx_cert {
-  source = "git::https://github.com/smuggy/terraform-base//tls/entity_certificate?ref=main"
-
-  common_name     = "prometheus.${local.external_domain}"
-  alternate_names = ["prometheus.${local.external_domain}"]
-
-  alternate_ips   = [module.prometheus_server.public_ip]
-  ca_private_key  = file("../../vpcs/secrets/podspace_ca_key.pem")
-  ca_certificate  = file("../../vpcs/secrets/podspace_ca_cert.pem")
-}
-
 resource local_file nginx_external_key_file {
   file_permission = "0400"
   filename        = "../secrets/prometheus_public_key.pem"
-  content         = module.nginx_cert.private_key
+  content         = module.prometheus_server.cert_key
 }
 
 resource local_file nginx_external_cert_file {
   file_permission = "0444"
   filename        = "../secrets/prometheus_public_cert.pem"
-  content         = module.nginx_cert.certificate_pem
-}
-
-resource azurerm_role_definition prom_role {
-  name              = "prom-role"
-  assignable_scopes = [module.rg.rg_id]
-  scope             = module.rg.rg_id
-
-  permissions {
-    actions     = ["Microsoft.Compute/virtualMachines/read",
-                   "Microsoft.Network/networkInterfaces/read"]
-    not_actions = []
-  }
-}
-
-resource azurerm_user_assigned_identity prom_identity {
-  name                = "prom-access"
-  resource_group_name = local.utility_rg_name
-  location            = local.utility_rg_location
-}
-
-resource azurerm_role_assignment prom {
-  principal_id         = azurerm_user_assigned_identity.prom_identity.principal_id
-  scope                = module.rg.rg_id
-  role_definition_name = azurerm_role_definition.prom_role.name
+  content         = module.prometheus_server.cert_pem
 }
 
 resource local_file hosts {
@@ -99,10 +47,16 @@ resource local_file group_vars {
   content  = format("provider: azure\nconsul_names:\n  - consul-1\nsubscription_id: ${local.subscription_id}\n")
 }
 
-resource azurerm_private_dns_a_record prom {
-  resource_group_name = local.rg_net_name
-  zone_name           = local.internal_domain
-  ttl                 = 3600
-  name                = "prometheus"
-  records             = [module.prometheus_server.private_ip]
+resource local_file private_key_file {
+  sensitive_content    = module.prometheus_server.ssh_private_key
+  filename             = "../secrets/prometheus-key"
+  file_permission      = 0400
+  directory_permission = 0755
+}
+
+resource local_file public_key_file {
+  content              = module.prometheus_server.ssh_public_key
+  filename             = "../secrets/prometheus-key.pub"
+  file_permission      = 0644
+  directory_permission = 0755
 }

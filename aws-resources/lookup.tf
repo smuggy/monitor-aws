@@ -12,3 +12,9 @@ data aws_vpc scratch_vpc {
     Name = "sb-scratch-us-east-2"
   }
 }
+
+#data aws_vpc utility_vpc {
+#  tags = {
+#    Name = "sb-utility-us-east-2"
+#  }
+#}

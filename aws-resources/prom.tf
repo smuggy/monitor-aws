@@ -3,7 +3,7 @@ locals {
 }
 
 module prom_server {
-  source = "git::https://github.com/smuggy/tf-services//prometheus?ref=main"
+  source = "git::https://github.com/smuggy/tf-services//prometheus/aws?ref=main"
 
   region            = "us-east-2"
   availability_zone = "us-east-2a"

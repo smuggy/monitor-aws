@@ -1,13 +1,13 @@
 #upstream consul_server {
-#  server consul.podspace.cloud:8501;
+#  server consul.podspace.local:8501;
 #}
 
 upstream grafana_server {
-  server prometheus.podspace.cloud:3000;
+  server prometheus.podspace.local:3000;
 }
 
 upstream prometheus_server {
-  server prometheus.podspace.cloud:9090;
+  server prometheus.podspace.local:9090;
 }
 
 #upstream kibana_server {
@@ -89,6 +89,7 @@ server {
   # root_url = http://prometheus.internal.podspace.net/grafana
   # serve_from_sub_path = true
     proxy_pass http://grafana_server/;
+    proxy_set_header Host $host;
   }
 
   location /prometheus/ {

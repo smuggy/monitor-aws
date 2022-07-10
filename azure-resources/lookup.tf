@@ -16,7 +16,6 @@ data azurerm_network_security_group vn_group {
   resource_group_name = local.rg_net_name
 }
 
-
 data azurerm_subnet subnet_1 {
   name                 = "scratch-subnet-1"
   virtual_network_name = local.vn_name

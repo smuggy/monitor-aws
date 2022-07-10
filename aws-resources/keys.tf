@@ -9,7 +9,7 @@ module utility_key_pair {
 }
 
 resource local_file private_key_file {
-  sensitive_content    = module.utility_key_pair.private_key_pem
+  content              = module.utility_key_pair.private_key_pem
   filename             = "../secrets/utility-key"
   file_permission      = 0400
   directory_permission = 0755

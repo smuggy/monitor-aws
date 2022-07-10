@@ -12,7 +12,7 @@
 
 - name: download prometheus zip file
   get_url:
-    url: "https://github.com/prometheus/prometheus/releases/download/v2.26.0/{{ prometheus_version }}.tar.gz"
+    url: "https://github.com/prometheus/prometheus/releases/download/v2.36.2/{{ prometheus_version }}.tar.gz"
     dest: "/tmp/prom_download"
 
 - name: unarchive prometheus
@@ -69,25 +69,24 @@
 
 - name: create environment file
   template:
-    src: prometheus.env.j2
+    src: prometheus.aws.env.j2
     dest: /etc/prometheus/prometheus.env
     owner: prometheus
     group: prometheus
-    mode: 0755
+    mode: 0600
   vars:
     ec2_access_key_var: "{{ ec2_access_key }}"
     ec2_secret_key_var: "{{ ec2_secret_key }}"
   when: provider == 'aws'
 
-- name: copy environment file
-  copy:
-    src: prometheus.env
-    dest: /etc/prometheus/prometheus.env
-    owner: prometheus
-    group: prometheus
-    mode: 0755
-  when: provider == 'azure'
-
+#- name: copy environment file
+#  copy:
+#    src: prometheus.env
+#    dest: /etc/prometheus/prometheus.env
+#    owner: prometheus
+#    group: prometheus
+#    mode: 0600
+#  when: provider == 'azure'
 
 - name: create data directory
   file:
