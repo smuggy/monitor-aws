@@ -50,29 +50,29 @@ scrape_configs:
 #    metrics_path: '/v1/agent/metrics'
 #    params:
 #      format: ['prometheus']
-#  - job_name: 'nodes'
-#    ec2_sd_configs:
-#      - region: us-east-2
-#        port: 9100
-#    relabel_configs:
-#      - source_labels: [__meta_ec2_tag_NodeExport]
-#        regex: true
-#        action: keep
-#      - source_labels: [__meta_ec2_tag_Name]
-#        target_label: hostname
-
   - job_name: 'nodes'
+    ec2_sd_configs:
+      - region: us-east-2
+        port: 9100
+    relabel_configs:
+      - source_labels: [__meta_ec2_tag_NodeExport]
+        regex: true
+        action: keep
+      - source_labels: [__meta_ec2_tag_Name]
+        target_label: hostname
+
+#  - job_name: 'nodes'
 #    azure_sd_configs:
 #      - authentication_method: ManagedIdentity
 #        environment: AzurePublicCloud
 #        subscription_id: subscription_id
 #        port: 9100
-    relabel_configs:
-      - source_labels: [__meta_azure_machine_tag_NodeExport]
-        regex: true
-        action: keep
-      - source_labels: [__meta_azure_machine_tag_Name]
-        target_label: hostname
+#    relabel_configs:
+#      - source_labels: [__meta_azure_machine_tag_NodeExport]
+#        regex: true
+#        action: keep
+#      - source_labels: [__meta_azure_machine_tag_Name]
+#        target_label: hostname
 
 #  - job_name: 'kubes'
 #    ec2_sd_configs:
