@@ -19,7 +19,7 @@
 
     - name: download node_exporter zip file
       get_url:
-        url: "https://github.com/prometheus/node_exporter/releases/download/v1.3.1/{{ node_exporter_version }}.tar.gz"
+        url: "https://github.com/prometheus/node_exporter/releases/download/v1.5.0/{{ node_exporter_version }}.tar.gz"
         dest: "/tmp/ne_download"
 
     - name: unarchive node_exporter

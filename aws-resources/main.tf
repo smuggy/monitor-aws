@@ -17,6 +17,7 @@ data template_file prom_group_vars {
   template = file("templates/prom_groups_vars.tpl")
   vars = {
     consuls    = local.internal_consul_string
+    region     = local.region
 #    consuls    = ""
     access_key = aws_iam_access_key.prom_access.id
     secret_key = aws_iam_access_key.prom_access.secret

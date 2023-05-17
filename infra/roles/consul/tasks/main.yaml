@@ -113,7 +113,7 @@
 
 - name: copy ca
   copy:
-    src: "../../vpcs/secrets/local_ca_cert.pem"
+    src: "../../vpcs/secrets/internal_ca_cert.pem"
     dest: "/var/lib/consul/secrets/ca.pem"
     owner: consul
     group: consul

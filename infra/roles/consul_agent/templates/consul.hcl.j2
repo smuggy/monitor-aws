@@ -1,0 +1,35 @@
+datacenter = "{{ region }}"
+data_dir = "/var/lib/consul/data"
+server = false
+enable_syslog = true
+
+ports {
+  http  = 8500
+  https = -1
+}
+
+# Gossip Encryption
+encrypt = "{{ gossip_key }}"
+encrypt_verify_incoming = true
+encrypt_verify_outgoing = true
+
+leave_on_terminate = true
+disable_update_check = true
+
+#telemetry {
+#  prometheus_retention_time = "60m"
+#}
+bind_addr = "{{ bind_address }}"
+
+acl {
+  enabled = true
+  default_policy = "deny"
+  enable_token_persistence = true
+
+  tokens {
+    agent = "{{ agent_token }}"
+    default = "{{ agent_token }}"
+  }
+}
+
+retry_join = ["consul.podspace.internal"]

@@ -1,13 +1,13 @@
 upstream consul_server {
-  server consul.podspace.local:8501;
+  server consul.podspace.internal:8501;
 }
 
 upstream grafana_server {
-  server prometheus.podspace.local:3000;
+  server prometheus.podspace.internal:3000;
 }
 
 upstream prometheus_server {
-  server prometheus.podspace.local:9090;
+  server prometheus.podspace.internal:9090;
 }
 
 #upstream kibana_server {
@@ -68,12 +68,15 @@ server {
   ssl_ciphers         HIGH:!aNULL:!MD5;
 
   location /consul/ {
+    proxy_buffering off;
     proxy_pass https://consul_server/consul/;
     proxy_set_header Host $host;
     proxy_set_header Referer $http_referer;
     proxy_set_header X-Forwarded-For $remote_addr;
     proxy_set_header X-Forwarded-Proto $scheme;
 
+# perhaps sub filter on v1 endpoints would
+# preclude the use of the location /v1 below
     sub_filter '"/ui/' '"/consul/ui/';
     sub_filter "'/ui/" "'/consul/ui/";
     sub_filter_types application/javascript;
@@ -90,9 +93,11 @@ server {
   # serve_from_sub_path = true
     proxy_pass http://grafana_server/;
     proxy_set_header Host $host;
+    proxy_buffering off;
   }
 
   location /prometheus/ {
+    proxy_buffering off;
     proxy_pass http://prometheus_server/;
     proxy_redirect / /prometheus/;
     proxy_set_header Host $host;

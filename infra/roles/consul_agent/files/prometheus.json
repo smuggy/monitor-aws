@@ -1,0 +1,21 @@
+{
+  "service": {
+    "checks": [
+      {
+        "http": "https://prometheus.podspace.internal/prometheus/-/healthy",
+        "id": "port",
+        "interval": "10s",
+        "name": "prometheus health",
+        "timeout": "1s"
+      }
+    ],
+    "enable_tag_override": false,
+    "id": "prometheus",
+    "meta": {
+      "meta": "Prometheus"
+    },
+    "name": "prometheus",
+    "port": 443,
+    "tags": []
+  }
+}

@@ -1,0 +1,12 @@
+---
+- name: post consul actions
+  hosts: consul_servers
+  become: yes
+  roles:
+    - post_consul
+
+#- name: configure consul on prometheus servers
+#  hosts: prom_servers
+#  become: yes
+#  roles:
+#    - consul_agent

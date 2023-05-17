@@ -21,11 +21,11 @@ output prom_public {
   value = module.prom_server.public_ip
 }
 
-module nginx_cert {
+module cert {
   source = "git::https://github.com/smuggy/terraform-base//tls/entity_certificate?ref=main"
 
   common_name     = "prometheus.${local.external_domain}"
-  alternate_names = ["prometheus.${local.external_domain}"]
+  alternate_names = ["prometheus.${local.external_domain}","prometheus.${local.internal_domain}"]
 
   alternate_ips   = [module.prom_server.public_ip]
   ca_private_key  = file("../../vpcs/secrets/podspace_ca_key.pem")
@@ -35,11 +35,11 @@ module nginx_cert {
 resource local_file nginx_external_key_file {
   file_permission = "0400"
   filename        = "../secrets/prometheus_public_key.pem"
-  content         = module.nginx_cert.private_key
+  content         = module.cert.private_key
 }
 
 resource local_file nginx_external_cert_file {
   file_permission = "0444"
   filename        = "../secrets/prometheus_public_cert.pem"
-  content         = module.nginx_cert.certificate_pem
+  content         = module.cert.certificate_pem
 }

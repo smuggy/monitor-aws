@@ -1,5 +1,5 @@
 locals {
-  internal_domain    = "podspace.local"
+  internal_domain    = "podspace.internal"
   external_domain    = "podspace.net"
   vpc_id             = data.aws_vpc.scratch_vpc.id
   region             = data.aws_region.current.name

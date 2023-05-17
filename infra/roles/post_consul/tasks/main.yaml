@@ -38,8 +38,17 @@
       when: acl_result.stat.exists == false
 
     - name: set bootstrap fact
+      slurp:
+        src: "/tmp/acl.out"
+      register: boot_acl
+
+    - name: debug file
+      debug:
+        msg: "{{ boot_acl.content | b64decode }}"
+
+    - name: set bootstrap
       set_fact:
-        bootstrap_token: "{{ (aclout['stdout'] | from_yaml)['SecretID'] }}"
+        bootstrap_token: "{{ (boot_acl.content | b64decode | from_yaml)['SecretID'] }}"
 
     - name: create anonymous policy
       shell: "/usr/local/bin/consul acl policy create -name anonymous -rules=@/tmp/anonymous_policy.hcl"
@@ -87,6 +96,14 @@
         mode: 0440
         owner: consul
         group: consul
+
+    - name: save agent token
+      delegate_to: localhost
+      become: no
+      copy:
+        content: "{{ ( agent_token_output['stdout']| from_yaml)['SecretID'] }}"
+        dest: ../secrets/agent-token
+        mode: 0440
 
 # set fact for bootstrap acl
 # create policies

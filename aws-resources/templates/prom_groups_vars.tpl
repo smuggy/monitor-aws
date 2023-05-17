@@ -1,4 +1,5 @@
 provider: aws
+region: ${region}
 consul_names:
   - ${consuls}
 ec2_access_key: ${access_key}

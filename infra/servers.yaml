@@ -52,6 +52,12 @@
   roles:
     - post_consul
 
+- name: configure consul on prometheus servers
+  hosts: prom_servers
+  become: yes
+  roles:
+    - consul_agent
+
 #- name: post everything
 #  hosts: all
 #  become: yes

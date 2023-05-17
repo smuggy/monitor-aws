@@ -17,11 +17,11 @@
 
     - name: download grafana package
       get_url:
-        url: "https://dl.grafana.com/oss/release/grafana_8.5.5_amd64.deb"
+        url: "https://dl.grafana.com/oss/release/grafana_9.0.5_amd64.deb"
         dest: "/tmp/graf_download"
 
     - name: install grafana
-      shell: dpkg -i /tmp/graf_download/grafana_8.5.5_amd64.deb
+      shell: dpkg --install /tmp/graf_download/grafana_9.0.5_amd64.deb
 
     - name: update grafana ini file for proxy
       ini_file:

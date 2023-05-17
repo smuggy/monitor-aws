@@ -37,8 +37,8 @@
 
 - name: copy internal ca cert
   copy:
-    src: ../../vpcs/secrets/local_ca_cert.pem
-    dest: /usr/local/share/ca-certificates/local-ca-cert.crt
+    src: ../../vpcs/secrets/internal_ca_cert.pem
+    dest: /usr/local/share/ca-certificates/internal-ca-cert.crt
     mode: 0444
 
 - name: run update ca certificates

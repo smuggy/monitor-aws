@@ -15,8 +15,8 @@ module consul_cluster {
   vpc_id        = local.vpc_id
   ssh_key_name  = local.key_name
   region        = local.region
-  ca_cert       = file("../../vpcs/secrets/local_ca_cert.pem")
-  ca_key        = file("../../vpcs/secrets/local_ca_key.pem")
+  ca_cert       = file("../../vpcs/secrets/internal_ca_cert.pem")
+  ca_key        = file("../../vpcs/secrets/internal_ca_key.pem")
 }
 
 resource null_resource consul_groups_vars {
