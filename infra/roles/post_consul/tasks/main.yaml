@@ -105,7 +105,22 @@
         dest: ../secrets/agent-token
         mode: 0440
 
-# set fact for bootstrap acl
+    - name: create management token for vault
+      shell: "/usr/local/bin/consul acl token create -description 'vault token' -policy-name=global-management"
+      environment:
+        CONSUL_HTTP_ADDR: "{{ consul_addr }}"
+        CONSUL_HTTP_TOKEN: "{{ bootstrap_token }}"
+      register: management_token_output
+
+    - name: save vault token
+      delegate_to: localhost
+      become: no
+      copy:
+        content: "{{ ( management_token_output['stdout']| from_yaml)['SecretID'] }}"
+        dest: ../secrets/management-token
+        mode: 0440
+
+  # set fact for bootstrap acl
 # create policies
 # apply anonymous policy to anonymous token
 # create extra management token for vault
