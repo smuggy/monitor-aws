@@ -19,18 +19,18 @@
 
     - name: download node_exporter zip file
       get_url:
-        url: "https://github.com/prometheus/node_exporter/releases/download/v1.5.0/{{ node_exporter_version }}.tar.gz"
+        url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/{{ node_exporter_name }}.tar.gz"
         dest: "/tmp/ne_download"
 
     - name: unarchive node_exporter
       unarchive:
-        src: "/tmp/ne_download/{{ node_exporter_version }}.tar.gz"
+        src: "/tmp/ne_download/{{ node_exporter_name }}.tar.gz"
         dest: "/tmp/ne_download"
         remote_src: yes
 
     - name: move executables
       copy:
-        src: "/tmp/ne_download/{{ node_exporter_version }}/node_exporter"
+        src: "/tmp/ne_download/{{ node_exporter_name }}/node_exporter"
         dest: "/usr/local/bin/node_exporter"
         mode: 0755
         owner: node_exporter

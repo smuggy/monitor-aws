@@ -1,0 +1,44 @@
+- name: install default jre
+  apt:
+    name: default-jre
+    state: present
+
+- name: create kafka service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: kafka
+
+- name: make directory
+  file:
+    path: /tmp/kafka_download
+    mode: 0755
+    state: directory
+
+- name: make directory
+  file:
+    path: "/opt/kafka"
+    mode: 0755
+    state: directory
+
+- name: download kafka zip file
+  get_url:
+    url: "https://downloads.apache.org/kafka/{{ kafka_version }}/{{ kafka_artifact }}"
+    dest: "/tmp/kafka_download"
+
+- name: unarchive kafka
+  unarchive:
+    src: "/tmp/kafka_download/{{ kafka_artifact }}"
+    dest: "/opt/kafka"
+    owner: kafka
+    group: kafka
+    remote_src: yes
+
+- name: create service file
+  copy:
+    src: kafka.service
+    dest: /etc/systemd/system/kafka.service
+    mode: 0644
+  notify:
+    - start kafka
+

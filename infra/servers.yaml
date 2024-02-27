@@ -36,6 +36,12 @@
     es_role: master
 #    - logstash
 
+- name: configure kafka servers
+  hosts: kafka_servers
+  become: yes
+  roles:
+    - kafka
+
 - name: configure prometheus servers
   hosts: prom_servers
   become: yes

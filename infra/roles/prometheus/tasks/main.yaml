@@ -12,7 +12,7 @@
 
 - name: download prometheus zip file
   get_url:
-    url: "https://github.com/prometheus/prometheus/releases/download/v2.36.2/{{ prometheus_version }}.tar.gz"
+    url: "https://github.com/prometheus/prometheus/releases/download/v2.45.3/{{ prometheus_version }}.tar.gz"
     dest: "/tmp/prom_download"
 
 - name: unarchive prometheus

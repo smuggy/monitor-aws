@@ -1,0 +1,22 @@
+---
+- name: common tasks for all hosts
+  hosts: all
+  become: yes
+  roles:
+    - common
+    - node_exporter
+
+- name: configure kafka servers
+  hosts: kafka_servers
+  become: yes
+  roles:
+    - kafka
+
+- name: configure prometheus servers
+  hosts: prom_servers
+  become: yes
+  roles:
+    - prometheus
+    - grafana
+    - nginx
+    - prom_nginx_config

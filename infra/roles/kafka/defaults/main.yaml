@@ -1,0 +1,4 @@
+kafka_version: "3.6.1"
+scala_version: "2.13"
+kafka_name: "kafka_{{ scala_version }}-{{ kafka_version }}"
+kafka_artifact: "{{ kafka_name }}.tgz"

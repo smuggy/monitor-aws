@@ -7,7 +7,7 @@ module prom_server {
 
   region            = "us-east-2"
   availability_zone = "us-east-2a"
-  instance_type     = "t3a.medium"
+  instance_type     = "t3a.small"
   server_group      = "1"
   ssh_key_name      = local.key_name
   vpc_id            = local.vpc_id

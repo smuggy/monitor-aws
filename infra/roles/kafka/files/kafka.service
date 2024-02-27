@@ -1,0 +1,16 @@
+[Unit]
+Description=Kafka
+Wants=network-online.target
+After=network-online.target
+# Requires=zookeeper.service
+# After=zookeeper.service
+
+[Service]
+Type=simple
+User=kafka
+ExecStart=/bin/sh -c '/opt/kafka/kafka_2.13-3.6.1/bin/kafka-server-start.sh /opt/kafka/kafka_2.13-3.6.1/config/server.properties > /opt/kafka/kafka_2.13-3.6.1/kafka.log 2>&1'
+ExecStop=/opt/kafka/kafka_2.13-3.6.1/bin/kafka-server-stop.sh
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target
