@@ -161,6 +161,7 @@ locals {
 resource random_uuid raft_id {
 }
 
+# TODO:
 #provider: aws
 #region: us-east-2
 #node_id_map:

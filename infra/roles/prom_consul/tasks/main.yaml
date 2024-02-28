@@ -1,0 +1,10 @@
+- name: copy prometheus service file
+  copy:
+    src: prometheus.json
+    dest: /home/ubuntu/prometheus.json
+    owner: ubuntu
+    group: ubuntu
+    mode: 644
+
+- name: register prometheus service
+  shell: consul services register /home/ubuntu/prometheus.json

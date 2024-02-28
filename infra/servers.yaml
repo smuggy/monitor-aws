@@ -63,6 +63,13 @@
   become: yes
   roles:
     - consul_agent
+    - prom_consul
+
+- name: configure consul on kafka servers
+  hosts: kafka_servers
+  become: yes
+  roles:
+    - consul_agent
 
 #- name: post everything
 #  hosts: all

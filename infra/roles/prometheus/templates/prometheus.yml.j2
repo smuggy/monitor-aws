@@ -61,6 +61,14 @@ scrape_configs:
       - source_labels: [__meta_ec2_tag_Name]
         target_label: hostname
 
+  - job_name: 'kafka'
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+    #####CHANGE THE TARGET TO THE IP AND PORT OF JMX SERVICE JUST INSTALLED#######
+    # Grafana import 721
+    static_configs:
+    - targets: ['kafka-00:9075', 'kafka-01:9075', 'kafka-02:9075']
+
 #  - job_name: 'nodes'
 #    azure_sd_configs:
 #      - authentication_method: ManagedIdentity

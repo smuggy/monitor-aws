@@ -8,6 +8,7 @@ After=network-online.target
 [Service]
 Type=simple
 User=kafka
+Environment="KAFKA_OPTS=-javaagent:/opt/kafka/kafka_2.13-3.6.1/libs/jmx_prometheus_javaagent-0.20.0.jar=9075:/opt/kafka/kafka_2.13-3.6.1/config/jmx_configuration.yaml"
 ExecStart=/bin/sh -c '/opt/kafka/kafka_2.13-3.6.1/bin/kafka-server-start.sh /opt/kafka/kafka_2.13-3.6.1/config/server.properties > /opt/kafka/kafka_2.13-3.6.1/kafka.log 2>&1'
 ExecStop=/opt/kafka/kafka_2.13-3.6.1/bin/kafka-server-stop.sh
 Restart=on-abnormal
