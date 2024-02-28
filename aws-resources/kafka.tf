@@ -76,7 +76,7 @@ resource aws_security_group kafka_security_group {
 resource aws_security_group_rule kafka_outbound_ports {
   security_group_id = aws_security_group.kafka_security_group.id
   type              = "egress"
-  protocol          = "tcp"
+  protocol          = "all"
   cidr_blocks       = ["0.0.0.0/0"]
   from_port         = 0
   to_port           = 65535
@@ -145,6 +145,25 @@ resource local_file kafka_group_file {
   content         = templatefile("templates/kafka_groups_vars.tpl",
     {
       region     = local.region
+      raft_id    = local.raft_id
     })
   file_permission = 0644
 }
+
+output kafka_ips {
+  value = module.brokers.*.public_ip
+}
+
+locals {
+  raft_id = substr(base64encode(replace(random_uuid.raft_id.result, "-", "")), 0, 22)
+}
+
+resource random_uuid raft_id {
+}
+
+#provider: aws
+#region: us-east-2
+#node_id_map:
+#kafka-00.podspace.internal: 1
+#kafka-01.podspace.internal: 2
+#kafka-02.podspace.internal: 3
