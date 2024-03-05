@@ -5,6 +5,7 @@ resource local_file host_file {
       prometheus_host_group = local.prometheus_host
       consul_host_group     = local.consul_host_group
       kafka_host_group      = local.kafka_host_group
+      app_host_group        = local.app_host_group
     })
   file_permission = 0644
 }

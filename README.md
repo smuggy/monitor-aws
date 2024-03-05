@@ -24,3 +24,4 @@ Popular grafana dashboards:
   * Consul - 10642
   * Cadvisor - 893
   * Kubernetes - 8588
+  * Kafka - 721

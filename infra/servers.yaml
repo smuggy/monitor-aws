@@ -71,6 +71,13 @@
   roles:
     - consul_agent
 
+- name: app server
+  hosts: app_servers
+  become: yes
+  roles:
+    - consul_agent
+    - java
+
 #- name: post everything
 #  hosts: all
 #  become: yes

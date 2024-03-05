@@ -71,7 +71,8 @@
     group: consul
     mode: 0444
   vars:
-    bind_address: "{{ ansible_default_ipv4.address }}"
+#    bind_address: "{{ ansible_default_ipv4.address }}"
+    bind_address: "127.0.0.1"
 
 - name: create consul directory
   file:

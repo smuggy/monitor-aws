@@ -13,3 +13,4 @@ infra/host_vars/*
 .DS_Store
 test/
 .terraform.tfstate.lock.info
+/infra/kafka_2.13-3.6.1.tgz

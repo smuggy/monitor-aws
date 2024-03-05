@@ -1,25 +1,8 @@
-data aws_route53_zone internal {
-  name         = local.internal_domain
-  private_zone = true
-}
-
-data aws_route53_zone reverse {
-  name         = "20.10.in-addr.arpa"#local.reverse_zone
-  private_zone = true
-}
-
 locals {
   kafka_cluster_count = 3
   kafka_server_names  = formatlist("kafka-%02d", range(local.kafka_cluster_count))
   kafka_hosts         = formatlist("%s ansible_host=%s", local.kafka_server_names, module.brokers.*.public_ip)
   kafka_host_group    = join("\n", local.kafka_hosts)
-  az_list             = ["${local.region}a","${local.region}b","${local.region}c"]
-  public_subnet_map = {
-    element(local.az_list, 0)  = data.aws_subnet.public_subnet_one.id
-    element(local.az_list, 1)  = data.aws_subnet.public_subnet_two.id
-    element(local.az_list, 2)  = data.aws_subnet.public_subnet_three.id
-  }
-
 }
 
 module brokers {
@@ -107,37 +90,6 @@ resource aws_security_group_rule kafka_self_all {
   from_port         = 0
   to_port           = 65535
   self              = true
-}
-
-data aws_subnet public_subnet_one {
-  vpc_id            = local.vpc_id
-  availability_zone = element(local.az_list, 0)
-  filter {
-    name = "tag:use"
-    values = ["public"]
-  }
-}
-
-data aws_subnet public_subnet_two {
-  vpc_id            = local.vpc_id
-  availability_zone = element(local.az_list, 1)
-  filter {
-    name = "tag:use"
-    values = ["public"]
-  }
-}
-
-data aws_subnet public_subnet_three {
-  vpc_id            = local.vpc_id
-  availability_zone = element(local.az_list, 2)
-  filter {
-    name = "tag:use"
-    values = ["public"]
-  }
-}
-
-data aws_route53_zone public {
-  name = "podspace.net" #local.external_domain
 }
 
 resource local_file kafka_group_file {

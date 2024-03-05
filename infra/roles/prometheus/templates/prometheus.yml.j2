@@ -68,6 +68,8 @@ scrape_configs:
     # Grafana import 721
     static_configs:
     - targets: ['kafka-00:9075', 'kafka-01:9075', 'kafka-02:9075']
+      labels:
+        env: 'dev'
 
 #  - job_name: 'nodes'
 #    azure_sd_configs:

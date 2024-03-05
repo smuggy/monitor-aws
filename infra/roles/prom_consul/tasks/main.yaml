@@ -8,3 +8,6 @@
 
 - name: register prometheus service
   shell: consul services register /home/ubuntu/prometheus.json
+  env:
+    CONSUL_HTTP_ADDR: "127.0.0.1:8500"
+    CONSUL_HTTP_TOKEN: "anonymous"
