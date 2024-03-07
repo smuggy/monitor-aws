@@ -42,14 +42,14 @@ module kafka_dns_record {
   records = module.brokers.*.private_ip
 }
 
-#module kafka_dns_public {
-#  source  = "app.terraform.io/podspace/base/aws//network/route53/a_record"
-#  version = "0.1.0"
-#
-#  zone_id = data.aws_route53_zone.public.zone_id
-#  name    = "kafka"
-#  records = module.brokers.*.public_ip
-#}
+module kafka_dns_public {
+  source  = "app.terraform.io/podspace/base/aws//network/route53/a_record"
+  version = "0.1.0"
+
+  zone_id = data.aws_route53_zone.public.zone_id
+  name    = "kafka"
+  records = module.brokers.*.public_ip
+}
 
 resource aws_security_group kafka_security_group {
   name   = "kafka_sg_01"
@@ -72,6 +72,15 @@ resource aws_security_group_rule kafka_ports {
   cidr_blocks       = ["0.0.0.0/0"]
   from_port         = 9000
   to_port           = 9999
+}
+
+resource aws_security_group_rule kafka_ports_consul {
+  security_group_id = aws_security_group.kafka_security_group.id
+  type              = "ingress"
+  protocol          = "tcp"
+  cidr_blocks       = ["10.0.0.0/8"]
+  from_port         = 8300
+  to_port           = 8301
 }
 
 resource aws_security_group_rule kafka_ssh {

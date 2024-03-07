@@ -43,3 +43,16 @@ resource local_file nginx_external_cert_file {
   filename        = "../secrets/prometheus_public_cert.pem"
   content         = module.cert.certificate_pem
 }
+
+#data aws_security_group prom_sg {
+#  name = "prometheus_sg_1"
+#}
+#
+#resource aws_security_group_rule prom_sg_consul {
+#  security_group_id = data.aws_security_group.prom_sg.id
+#  from_port         = 8300
+#  to_port           = 8301
+#  type              = "ingress"
+#  protocol          = "tcp"
+#  cidr_blocks       = ["10.0.0.0/8"]
+#}
