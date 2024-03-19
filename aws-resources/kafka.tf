@@ -1,5 +1,5 @@
 locals {
-  kafka_cluster_count = 3
+  kafka_cluster_count = 0
   kafka_server_names  = formatlist("kafka-%02d", range(local.kafka_cluster_count))
   kafka_hosts         = formatlist("%s ansible_host=%s", local.kafka_server_names, module.brokers.*.public_ip)
   kafka_host_group    = join("\n", local.kafka_hosts)
@@ -36,6 +36,7 @@ module node_dns_record {
 module kafka_dns_record {
   source  = "app.terraform.io/podspace/base/aws//network/route53/a_record"
   version = "0.1.0"
+  count   = local.kafka_cluster_count == 0 ? 0 : 1
 
   zone_id = data.aws_route53_zone.internal.zone_id
   name    = "kafka"
@@ -45,6 +46,7 @@ module kafka_dns_record {
 module kafka_dns_public {
   source  = "app.terraform.io/podspace/base/aws//network/route53/a_record"
   version = "0.1.0"
+  count   = local.kafka_cluster_count == 0 ? 0 : 1
 
   zone_id = data.aws_route53_zone.public.zone_id
   name    = "kafka"
