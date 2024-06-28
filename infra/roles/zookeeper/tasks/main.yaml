@@ -1,0 +1,84 @@
+- name: create zookeeper service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: zookeeper
+
+- name: create download directory
+  file:
+    path: /tmp/zookeeper_download
+    state: directory
+
+- name: get zookeeper archive
+  get_url:
+        url: "{{ zookeeper_location }}"
+        dest: /tmp/zookeeper_download
+
+- name: unarchive zookeeper
+  unarchive:
+    src: "/tmp/zookeeper_download/{{ zookeeper_artifact }}"
+    dest: /tmp/zookeeper_download
+    remote_src: yes
+
+- name: copy zookeeper to usr opt
+  copy:
+    src: "/tmp/zookeeper_download/{{ zookeeper_name }}"
+    dest: /opt/zookeeper
+    mode: 0755
+    owner: zookeeper
+    group: zookeeper
+    remote_src: yes
+
+- name: create zookeeper directory
+  file:
+    path: /var/lib/zookeeper
+    owner: zookeeper
+    group: zookeeper
+    state: directory
+    mode: 0755
+
+- name: create file system on device
+  filesystem:
+    dev: /dev/nvme1n1
+    fstype: ext4
+
+- name: mount device for volume
+  mount:
+    state: mounted
+    path: /var/lib/zookeeper
+    src: /dev/nvme1n1
+    fstype: ext4
+
+- name: create data directory
+  file:
+    path: "/var/lib/zookeeper/data"
+    owner: zookeeper
+    group: zookeeper
+    mode: 0750
+    state: directory
+
+- name: create configuration file
+  template:
+    src: zoo.cfg.j2
+    dest: /opt/zookeeper/apache-zookeeper-3.8.4-bin/conf/zoo.cfg
+    owner: zookeeper
+    group: zookeeper
+    mode: 0644
+  vars:
+    server_list: "{{ servers }}"
+
+- name: create service file
+  copy:
+    src: zookeeper.service
+    dest: /etc/systemd/system/zookeeper.service
+    mode: 0644
+  notify:
+    - start zookeeper
+
+- name: create myid file
+  copy:
+    content: "{{ id_map[ansible_hostname] }}"
+    dest: /var/lib/zookeeper/data/myid
+    owner: zookeeper
+    group: zookeeper
+    mode: 0444

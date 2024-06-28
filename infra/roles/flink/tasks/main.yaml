@@ -1,0 +1,38 @@
+- name: create flink service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: flink
+
+- name: make download directory
+  file:
+    path: /tmp/flink_download
+    mode: 0755
+    state: directory
+
+- name: make flink directory
+  file:
+    path: "/opt/flink"
+    owner: flink
+    group: flink
+    mode: 0755
+    state: directory
+
+- name: is kafka downloaded
+  stat:
+    path: "/tmp/flink_download/{{ flink_artifact }}"
+  register: flink_download_exists_result
+
+- name: download flink zip file
+  get_url:
+    url: "https://dlcdn.apache.org/flink/flink-{{ flink_version }}/{{ flink_artifact }}"
+    dest: "/tmp/flink_download"
+  when: kafka_download_exists_result.stat.exists == false
+
+- name: unarchive flink
+  unarchive:
+    src: "/tmp/flink_download/{{ flink_artifact }}"
+    dest: "/opt/flink"
+    owner: flink
+    group: flink
+    remote_src: yes

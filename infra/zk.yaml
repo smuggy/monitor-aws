@@ -1,0 +1,9 @@
+- name: zookeeper
+  hosts: zookeeper_servers
+  become: yes
+  roles:
+    - common
+    - node_exporter
+    - java
+    - zookeeper
+

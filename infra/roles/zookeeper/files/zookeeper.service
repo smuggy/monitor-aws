@@ -1,0 +1,15 @@
+[Unit]
+Description=zookeeper
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=zookeeper
+Group=zookeeper
+Type=simple
+WorkingDirectory=/opt/zookeeper/apache-zookeeper-3.8.4-bin
+ExecStart=/opt/zookeeper/apache-zookeeper-3.8.4-bin/bin/zkServer.sh \
+    --config /opt/zookeeper/apache-zookeeper-3.8.4-bin/conf start-foreground
+
+[Install]
+WantedBy=multi-user.target

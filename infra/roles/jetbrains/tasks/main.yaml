@@ -1,0 +1,27 @@
+#- name: install jetbrains pre-reqs
+#  apt:
+#    name: libfuse2 libxi6 libxrender1 libxtst6 mesa-utils libfontconfig libgtk-3-bin
+#    state: present
+#
+#- name: create jetbrains download directory
+#  file:
+#    path: /tmp/jetbrains
+#    state: directory
+#    mode: 755
+#
+#- name: create jetbrains download directory
+#  file:
+#    path: /opt/jetbrains
+#    state: directory
+#    mode: 755
+#
+#- name: download jetbrains tar file
+#  get_url:
+#    url: https://data.services.jetbrains.com/products/download
+#    dest: /tmp/jetbrains
+#
+#- name: un-tar jetbrains
+#  unarchive:
+#    src: /tmp/jetbrains/jetbrains-toolbox-2.2.3.20090.tar.gz
+#    dest: /opt/jetbrains
+#    remote_src: yes

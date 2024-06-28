@@ -41,6 +41,7 @@
   become: yes
   roles:
     - kafka
+    - flink
 
 - name: configure prometheus servers
   hosts: prom_servers
@@ -77,6 +78,14 @@
   roles:
     - consul_agent
     - java
+
+- name: zookeeper
+  hosts: zookeeper_servers
+  become: yes
+  roles:
+    - consul_agent
+    - java
+    - zookeeper
 
 #- name: post everything
 #  hosts: all

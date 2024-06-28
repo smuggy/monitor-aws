@@ -1,0 +1,4 @@
+flink_version: "1.19.0"
+flink_scala_version: "2.12"
+flink_name: "flink-{{ flink_version}}-bin-scala_{{ flink_scala_version }}"
+flink_artifact: "{{ flink_name }}.tgz"

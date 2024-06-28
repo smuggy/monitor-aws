@@ -25,10 +25,30 @@
 
 - name: make kafka logs directory
   file:
-    path: "/opt/kafka-logs"
+    path: "/opt/kafka/kafka-logs"
     owner: kafka
     group: kafka
     mode: 0755
+    state: directory
+
+- name: create file system on device
+  filesystem:
+    dev: /dev/nvme1n1
+    fstype: xfs
+
+- name: mount device for volume
+  mount:
+    state: mounted
+    path: /opt/kafka/kafka-logs
+    src: /dev/nvme1n1
+    fstype: xfs
+
+- name: create data directory
+  file:
+    path: "/opt/kafka/kafka-logs/data"
+    owner: kafka
+    group: kafka
+    mode: 0750
     state: directory
 
 - name: is kafka downloaded

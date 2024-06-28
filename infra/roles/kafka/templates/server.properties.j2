@@ -65,7 +65,7 @@ socket.request.max.bytes=104857600
 ############################# Log Basics #############################
 
 # A comma separated list of directories under which to store log files
-log.dirs=/opt/kafka/kafka-logs
+log.dirs=/opt/kafka/kafka-logs/data
 
 # The default number of log partitions per topic. More partitions allow greater
 # parallelism for consumption, but this will also result in more files across
@@ -81,7 +81,7 @@ num.recovery.threads.per.data.dir=1
 # For anything other than development testing, a value greater than 1 is recommended to ensure availability such as 3.
 offsets.topic.replication.factor=1
 transaction.state.log.replication.factor=1
-transaction.state.log.min.isr=1
+transaction.state.log.min.isr=2
 
 ############################# Log Flush Policy #############################
 

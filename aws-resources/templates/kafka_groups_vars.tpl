@@ -1,6 +1,7 @@
 provider: aws
 region: ${region}
 raft_id: ${raft_id}
+zookeeper: ${zookeeper}
 node_id_map:
   kafka-00.podspace.internal: 1
   kafka-01.podspace.internal: 2
