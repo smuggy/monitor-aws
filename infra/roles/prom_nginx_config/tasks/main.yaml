@@ -1,19 +1,39 @@
-- name: create nginx config file
-  copy:
-    src: consul
-    dest: /etc/nginx/sites-available/consul
-  notify:
-  - start nginx
+- name: consul enabled actions
+  block:
+  - name: create nginx config file
+    copy:
+      src: consul
+      dest: /etc/nginx/sites-available/consul
+    notify:
+    - start nginx
 
-- name: link to enabled sites
-  file:
-    src: /etc/nginx/sites-available/consul
-    dest: /etc/nginx/sites-enabled/consul
-    state: link
+  - name: link to enabled sites
+    file:
+      src: /etc/nginx/sites-available/consul
+      dest: /etc/nginx/sites-enabled/consul
+      state: link
+  when: consul_enabled
+
+- name: consul not enabled actions
+  block:
+    - name: create nginx config file
+      copy:
+        src: non_consul
+        dest: /etc/nginx/sites-available/non_consul
+      notify:
+        - start nginx
+
+    - name: link to enabled sites
+      file:
+        src: /etc/nginx/sites-available/non_consul
+        dest: /etc/nginx/sites-enabled/non_consul
+        state: link
+
+  when: not consul_enabled
 
 - name: remove default site
   file:
     path: /etc/nginx/sites-enabled/default
     state: absent
   notify:
-  - start nginx
+    - start nginx

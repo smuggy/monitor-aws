@@ -20,7 +20,7 @@
     dest: /tmp/zookeeper_download
     remote_src: yes
 
-- name: copy zookeeper to usr opt
+- name: copy zookeeper to opt
   copy:
     src: "/tmp/zookeeper_download/{{ zookeeper_name }}"
     dest: /opt/zookeeper

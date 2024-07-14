@@ -1,0 +1,37 @@
+upstream grafana_server {
+  server prometheus.podspace.internal:3000;
+}
+
+upstream prometheus_server {
+  server prometheus.podspace.internal:9090;
+}
+
+server {
+  listen 443 ssl;
+  server_name         prometheus.podspace.net;
+  ssl_certificate     cert.pem;
+  ssl_certificate_key key.pem;
+  ssl_protocols       TLSv1.2 TLSv1.3;
+  ssl_ciphers         HIGH:!aNULL:!MD5;
+
+  location /grafana/ {
+    proxy_pass http://grafana_server/;
+    proxy_set_header Host $host;
+    proxy_buffering off;
+  }
+
+  location /prometheus/ {
+    proxy_buffering off;
+    proxy_pass http://prometheus_server/;
+    proxy_redirect / /prometheus/;
+    proxy_set_header Host $host;
+    proxy_set_header Referer $http_referer;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    sub_filter 'href="/' 'href="/prometheus/';
+    sub_filter 'src="/' 'src="/prometheus/';
+    sub_filter_types text/html;
+    sub_filter_once off;
+  }
+}

@@ -1,5 +1,23 @@
-- name: tester consul servers
-  hosts: consul_servers
-  become: yes
-  roles:
-    - test
+- name: test download
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: download file
+      get_url:
+        url: "https://dlcdn.apache.org/flink/flink-1.19.1/flink-1.19.1-bin-scala_2.12.tgz"
+        dest: "./flink_download/"
+      register: result
+      until: result.status_code == 200
+      retries: 5
+      delay: 10
+
+    - name: message
+      debug:
+        msg: "{{ result.status_code }}"
+
+#- name: tester consul servers
+#  hosts: consul_servers
+#  become: yes
+#  roles:
+#    - test

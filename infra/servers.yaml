@@ -36,12 +36,20 @@
     es_role: master
 #    - logstash
 
+- name: zookeeper
+  hosts: zookeeper_servers
+  become: yes
+  roles:
+    - java
+    - zookeeper
+
 - name: configure kafka servers
   hosts: kafka_servers
   become: yes
   roles:
+    - java
     - kafka
-    - flink
+#    - flink
 
 - name: configure prometheus servers
   hosts: prom_servers
@@ -66,6 +74,12 @@
     - consul_agent
     - prom_consul
 
+- name: zookeeper
+  hosts: zookeeper_servers
+  become: yes
+  roles:
+    - consul_agent
+
 - name: configure consul on kafka servers
   hosts: kafka_servers
   become: yes
@@ -78,14 +92,6 @@
   roles:
     - consul_agent
     - java
-
-- name: zookeeper
-  hosts: zookeeper_servers
-  become: yes
-  roles:
-    - consul_agent
-    - java
-    - zookeeper
 
 #- name: post everything
 #  hosts: all

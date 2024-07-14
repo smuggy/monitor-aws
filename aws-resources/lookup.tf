@@ -25,7 +25,7 @@ data aws_route53_zone internal {
 }
 
 data aws_route53_zone reverse {
-  name         = "20.10.in-addr.arpa"#local.reverse_zone
+  name         = "20.10.in-addr.arpa"  #local.reverse_zone
   private_zone = true
 }
 

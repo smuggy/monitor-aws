@@ -1,4 +1,4 @@
-- name: install jdk 21
+- name: install jre 21 headless
   apt:
     name: openjdk-21-jre-headless
     state: present

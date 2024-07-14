@@ -18,16 +18,20 @@
     mode: 0755
     state: directory
 
-- name: is kafka downloaded
+- name: is flink downloaded
   stat:
     path: "/tmp/flink_download/{{ flink_artifact }}"
   register: flink_download_exists_result
 
-- name: download flink zip file
+- name: download flink tgz file
   get_url:
     url: "https://dlcdn.apache.org/flink/flink-{{ flink_version }}/{{ flink_artifact }}"
     dest: "/tmp/flink_download"
-  when: kafka_download_exists_result.stat.exists == false
+  when: flink_download_exists_result.stat.exists == false
+  register: flink_download_result
+  retries: 3
+  delay: 5
+  until: flink_download_result.status_code == 200
 
 - name: unarchive flink
   unarchive:

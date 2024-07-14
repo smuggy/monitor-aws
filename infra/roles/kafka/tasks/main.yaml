@@ -1,8 +1,3 @@
-- name: install default jre
-  apt:
-    name: default-jre
-    state: present
-
 - name: create kafka service account
   include_role:
     name: service_account
@@ -62,39 +57,41 @@
     dest: "/tmp/kafka_download"
   when: kafka_download_exists_result.stat.exists == false
 
-- name: download jmx jar
-  get_url:
-    url: "https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.20.0/jmx_prometheus_javaagent-0.20.0.jar"
-    dest: "/tmp/kafka_download"
+- name: install
+  block:
+    - name: download jmx jar
+      get_url:
+        url: "https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.20.0/jmx_prometheus_javaagent-0.20.0.jar"
+        dest: "/tmp/kafka_download"
+
+    - name: unarchive kafka
+      unarchive:
+        src: "/tmp/kafka_download/{{ kafka_artifact }}"
+        dest: "/opt/kafka"
+        owner: kafka
+        group: kafka
+        remote_src: yes
+
+    - name: copy jmx jar to libs
+      copy:
+        src: "/tmp/kafka_download/jmx_prometheus_javaagent-0.20.0.jar"
+        dest: "/opt/kafka/{{ kafka_name }}/libs"
+        owner: kafka
+        group: kafka
+        remote_src: yes
+
+    - name: copy jmx configuration
+      copy:
+        src: "jmx_configuration.yaml"
+        dest: "/opt/kafka/{{ kafka_name }}/config"
+        owner: kafka
+        group: kafka
   when: kafka_download_exists_result.stat.exists == false
 #- name: copy kafka archive
 #  copy:
 #    src: "{{ kafka_artifact }}"
 #    dest: "/tmp/kafka_download/{{ kafka_artifact }}"
 #  when: kafka_download_exists_result.stat.exists == false
-
-- name: unarchive kafka
-  unarchive:
-    src: "/tmp/kafka_download/{{ kafka_artifact }}"
-    dest: "/opt/kafka"
-    owner: kafka
-    group: kafka
-    remote_src: yes
-
-- name: copy jmx jar to libs
-  copy:
-    src: "/tmp/kafka_download/jmx_prometheus_javaagent-0.20.0.jar"
-    dest: "/opt/kafka/{{ kafka_name }}/libs"
-    owner: kafka
-    group: kafka
-    remote_src: yes
-
-- name: copy jmx configuration
-  copy:
-    src: "jmx_configuration.yaml"
-    dest: "/opt/kafka/{{ kafka_name }}/config"
-    owner: kafka
-    group: kafka
 
 - name: create service file
   copy:
@@ -104,31 +101,46 @@
   notify:
     - start kafka
 
-- name: file template
+- name: server properties template
+  block:
+    - name:
+      template:
+        src: server.properties.j2
+        dest: "/opt/kafka/{{ kafka_name }}/config/server.properties"
+        owner: kafka
+        group: kafka
+        mode: 0644
+      vars:
+        node_name: "{{ ansible_hostname }}.podspace.internal"
+
+    - name: is kraft initialized
+      stat:
+        path: "/opt/kafka/kafka-logs/meta.properties"
+      register: kraft_initialized
+
+    - name: create kraft meta log
+      shell:
+        chdir: "/opt/kafka/{{kafka_name}}"
+        cmd: |
+          bin/kafka-storage.sh format -t {{ raft_id }} -c config/server.properties
+      when: kraft_initialized.stat.exists == false
+
+    - name: update meta log ownership
+      file:
+        path: "/opt/kafka/kafka-logs"
+        owner: kafka
+        group: kafka
+        recurse: true
+
+  when: not zookeeper
+
+- name: server properties zk template
   template:
-    src: server.properties.j2
+    src: server.properties.zk.j2
     dest: "/opt/kafka/{{ kafka_name }}/config/server.properties"
     owner: kafka
     group: kafka
     mode: 0644
   vars:
     node_name: "{{ ansible_hostname }}.podspace.internal"
-
-- name: is kraft initialized
-  stat:
-    path: "/opt/kafka/kafka-logs/meta.properties"
-  register: kraft_initialized
-
-- name: create kraft meta log
-  shell:
-    chdir: "/opt/kafka/{{kafka_name}}"
-    cmd: |
-      bin/kafka-storage.sh format -t {{ raft_id }} -c config/server.properties
-  when: kraft_initialized.stat.exists == false
-
-- name: update meta log ownership
-  file:
-    path: "/opt/kafka/kafka-logs"
-    owner: kafka
-    group: kafka
-    recurse: true
+  when: zookeeper

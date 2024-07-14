@@ -21,7 +21,7 @@ module brokers {
   volume_type   = "gp3"
   key_name      = var.key_pair_name
   region        = var.region
-  instance_type = "t3a.small"
+  instance_type = "t3a.micro" // "t3a.small"
 
   name_zone_id    = var.internal_zone_id
   reverse_zone_id = var.reverse_zone_id
@@ -96,6 +96,15 @@ resource aws_security_group_rule zookeeper_ssh {
   cidr_blocks       = ["0.0.0.0/0"]
   from_port         = 22
   to_port           = 22
+}
+
+resource aws_security_group_rule zookeeper_ne {
+  security_group_id = aws_security_group.security_group.id
+  type              = "ingress"
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  from_port         = 9100
+  to_port           = 9100
 }
 
 resource aws_security_group_rule zookeeper_self_all {

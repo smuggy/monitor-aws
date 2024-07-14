@@ -1,1 +1,2 @@
-prometheus_version: prometheus-2.45.3.linux-amd64
+prometheus_version: 2.53.1
+prometheus_name: "prometheus-{{ prometheus_version }}.linux-amd64"

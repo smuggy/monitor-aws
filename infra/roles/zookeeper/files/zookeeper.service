@@ -10,6 +10,8 @@ Type=simple
 WorkingDirectory=/opt/zookeeper/apache-zookeeper-3.8.4-bin
 ExecStart=/opt/zookeeper/apache-zookeeper-3.8.4-bin/bin/zkServer.sh \
     --config /opt/zookeeper/apache-zookeeper-3.8.4-bin/conf start-foreground
+ExecStop=/opt/zookeeper/apache-zookeeper-3.8.4-bin/bin/zkServer.sh \
+    --config /opt/zookeeper/apache-zookeeper-3.8.4-bin/conf stop
 
 [Install]
 WantedBy=multi-user.target

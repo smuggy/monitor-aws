@@ -12,18 +12,18 @@
 
 - name: download prometheus zip file
   get_url:
-    url: "https://github.com/prometheus/prometheus/releases/download/v2.45.3/{{ prometheus_version }}.tar.gz"
+    url: "https://github.com/prometheus/prometheus/releases/download/v{{ prometheus_version }}/{{ prometheus_name }}.tar.gz"
     dest: "/tmp/prom_download"
 
 - name: unarchive prometheus
   unarchive:
-    src: "/tmp/prom_download/{{ prometheus_version }}.tar.gz"
+    src: "/tmp/prom_download/{{ prometheus_name }}.tar.gz"
     dest: "/tmp/prom_download"
     remote_src: yes
 
 - name: move executables
   copy:
-    src: "/tmp/prom_download/{{ prometheus_version }}/{{ item }}"
+    src: "/tmp/prom_download/{{ prometheus_name }}/{{ item }}"
     dest: "/usr/local/bin/{{ item }}"
     mode: 0755
     owner: prometheus
@@ -43,7 +43,7 @@
 
 - name: copy console files
   copy:
-    src: "/tmp/prom_download/{{ prometheus_version }}/consoles"
+    src: "/tmp/prom_download/{{ prometheus_name }}/consoles"
     dest: "/etc/prometheus"
     owner: prometheus
     group: prometheus
@@ -51,7 +51,7 @@
 
 - name: copy console libraries
   copy:
-    src: "/tmp/prom_download/{{ prometheus_version }}/console_libraries"
+    src: "/tmp/prom_download/{{ prometheus_name }}/console_libraries"
     dest: "/etc/prometheus"
     owner: prometheus
     group: prometheus
