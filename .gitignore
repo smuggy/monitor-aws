@@ -14,3 +14,6 @@ infra/host_vars/*
 test/
 .terraform.tfstate.lock.info
 /infra/kafka_2.13-3.6.1.tgz
+*.csv
+
+/infra/flink_download/
