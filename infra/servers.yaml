@@ -12,36 +12,36 @@
   roles:
     - consul
 
-- name: configure web servers
-  hosts: web_servers
-  become: yes
-  roles:
-    - nginx
+#- name: configure web servers
+#  hosts: web_servers
+#  become: yes
+#  roles:
+#    - nginx
 
-- name: configure log data servers
-  hosts: elk_data_servers
-  become: yes
-  roles:
-    - elasticsearch
-  vars:
-    es_role: data
-
-- name: configure log master servers
-  hosts: elk_master_servers
-  become: yes
-  roles:
-    - elasticsearch
-    - kibana
-  vars:
-    es_role: master
-#    - logstash
-
-- name: zookeeper
-  hosts: zookeeper_servers
-  become: yes
-  roles:
-    - java
-    - zookeeper
+#- name: configure log data servers
+#  hosts: elk_data_servers
+#  become: yes
+#  roles:
+#    - elasticsearch
+#  vars:
+#    es_role: data
+#
+#- name: configure log master servers
+#  hosts: elk_master_servers
+#  become: yes
+#  roles:
+#    - elasticsearch
+#    - kibana
+#  vars:
+#    es_role: master
+##    - logstash
+#
+#- name: zookeeper
+#  hosts: zookeeper_servers
+#  become: yes
+#  roles:
+#    - java
+#    - zookeeper
 
 - name: configure kafka servers
   hosts: kafka_servers
@@ -67,18 +67,18 @@
   roles:
     - post_consul
 
-- name: configure consul on prometheus servers
-  hosts: prom_servers
-  become: yes
-  roles:
-    - consul_agent
-    - prom_consul
-
-- name: zookeeper
-  hosts: zookeeper_servers
-  become: yes
-  roles:
-    - consul_agent
+#- name: configure consul on prometheus servers
+#  hosts: prom_servers
+#  become: yes
+#  roles:
+#    - consul_agent
+#    - prom_consul
+#
+#- name: zookeeper
+#  hosts: zookeeper_servers
+#  become: yes
+#  roles:
+#    - consul_agent
 
 - name: configure consul on kafka servers
   hosts: kafka_servers

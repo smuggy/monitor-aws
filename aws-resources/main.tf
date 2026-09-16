@@ -4,9 +4,9 @@ resource local_file host_file {
     {
       prometheus_host_group = local.prometheus_host
       consul_host_group     = local.consul_host_group // ""
-      kafka_host_group      = module.kafka.kafka_host_group // ""
-      app_host_group        = local.app_host_group // ""
-      zookeeper_host_group  = module.zookeeper.zookeeper_host_group // ""
+      kafka_host_group      = "" // module.kafka.kafka_host_group // ""
+      app_host_group        = "" // local.app_host_group // ""
+      zookeeper_host_group  = "" // module.zookeeper.zookeeper_host_group // ""
     })
   file_permission = 0644
 }
@@ -28,8 +28,41 @@ resource local_file ssh_config {
   filename        = "../infra/ssh.cfg"
   content         = templatefile("templates/ssh.cfg",
     {
-      bastion_ip   = module.prom_server.public_ip
+      bastion_ip   = aws_instance.prom_server.public_ip
       host_pattern = "10.20.*.*"
     })
   file_permission = 0644
 }
+
+# resource aws_instance test_instance {
+#   ami           = data.aws_ami.ubuntu.id
+#   instance_type = "t3.large"
+#   subnet_id     = local.public_subnet_map["us-east-2a"]
+#   key_name      = local.key_name
+#   vpc_security_group_ids = [data.aws_security_group.default.id, aws_security_group.prometheus_security_group.id]
+#   tags = {
+#     Name       = "kafka-test-server"
+#     name       = "kafka-test"
+#     NodeExport = "true"
+#   }
+# }
+#
+# #--------------------
+# resource aws_route53_record kafka_internal {
+#   zone_id = data.aws_route53_zone.internal.zone_id
+#   name    = "kafka-01.podspace.internal"
+#   type    = "A"
+#   ttl     = 300
+#   records = [aws_instance.test_instance.private_ip]
+# }
+#
+# resource aws_route53_record kafka_external {
+#   zone_id = data.aws_route53_zone.public.zone_id
+#   name    = "kafka-test-server.podspace.net"
+#   type    = "A"
+#   ttl     = 300
+#   records = [aws_instance.test_instance.public_ip]
+# }
+#
+# #-----------------------
+#

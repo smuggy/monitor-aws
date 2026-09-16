@@ -41,21 +41,22 @@
     group: prometheus
     state: directory
 
-- name: copy console files
-  copy:
-    src: "/tmp/prom_download/{{ prometheus_name }}/consoles"
-    dest: "/etc/prometheus"
-    owner: prometheus
-    group: prometheus
-    remote_src: yes
+# commented with version 3.x of prometheus
+#- name: copy console files
+#  copy:
+#    src: "/tmp/prom_download/{{ prometheus_name }}/consoles"
+#    dest: "/etc/prometheus"
+#    owner: prometheus
+#    group: prometheus
+#    remote_src: yes
 
-- name: copy console libraries
-  copy:
-    src: "/tmp/prom_download/{{ prometheus_name }}/console_libraries"
-    dest: "/etc/prometheus"
-    owner: prometheus
-    group: prometheus
-    remote_src: yes
+#- name: copy console libraries
+#  copy:
+#    src: "/tmp/prom_download/{{ prometheus_name }}/console_libraries"
+#    dest: "/etc/prometheus"
+#    owner: prometheus
+#    group: prometheus
+#    remote_src: yes
 
 - name: create prometheus configuration file
   template:

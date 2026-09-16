@@ -1,3 +1,3 @@
-consul_version: 1.10.11
+consul_version: 2.0.3
 consul_name: "consul_{{ consul_version }}_linux_amd64"
 consul_artifact: "{{ consul_name }}.zip"

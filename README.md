@@ -25,3 +25,27 @@ Popular grafana dashboards:
   * Cadvisor - 893
   * Kubernetes - 8588
   * Kafka - 721
+
+---
+
+# Performance test producer
+
+### Producer
+```bash
+docker exec -it broker-1 sh -c "KAFKA_OPTS= /opt/kafka/bin/kafka-producer-perf-test.sh \
+  --topic your-topic-name \
+  --num-records 100000 \
+  --record-size 1024 \
+  --throughput -1 \
+  --producer-props bootstrap.servers=localhost:19092"
+```
+
+### Consumer
+
+```bash
+docker exec -it broker-1 sh -c "KAFKA_OPTS= /opt/kafka/bin/kafka-consumer-perf-test.sh \
+  --topic your-topic-name \
+  --messages 100000 \
+  --bootstrap-server localhost:19092"
+```
+

@@ -6,9 +6,10 @@ locals {
   consul_host_group      = join("\n", local.consul_hosts)
 #  consul_host_group      = ""
 }
-#
+
 module consul_cluster {
-  source = "git::https://github.com/smuggy/tf-services//consul?ref=main"
+  source = "git::ssh://git@github.com/smuggy/tf-services.git//consul?ref=main"
+//  source = "git::https://github.com/smuggy/tf-services//consul?ref=main"
 
   cluster_size  = "small"
   instance_type = "t3a.micro"
