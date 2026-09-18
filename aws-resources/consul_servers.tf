@@ -6,9 +6,10 @@ locals {
   consul_host_group      = join("\n", local.consul_hosts)
 #  consul_host_group      = ""
 }
-#
+
 module consul_cluster {
-  source = "git::https://github.com/smuggy/tf-services//consul?ref=main"
+  source = "git::ssh://git@github.com/smuggy/tf-services.git//consul?ref=main"
+//  source = "git::https://github.com/smuggy/tf-services//consul?ref=main"
 
   cluster_size  = "small"
   instance_type = "t3a.micro"
@@ -42,7 +43,7 @@ resource local_file key {
   count = local.consul_server_count
 
   filename        = "../secrets/${element(module.consul_cluster.server_names, count.index)}-key.pem"
-  content         = element(module.consul_cluster.consul_keys, count.index)
+  content         = module.consul_cluster.consul_keys[count.index]
   file_permission = 0440
 }
 
@@ -50,7 +51,7 @@ resource local_file cert {
   count = local.consul_server_count
 
   filename        = "../secrets/${element(module.consul_cluster.server_names, count.index)}-cert.pem"
-  content         = element(module.consul_cluster.consul_certs, count.index)
+  content         = module.consul_cluster.consul_certs[count.index]
   file_permission = 0444
 }
 

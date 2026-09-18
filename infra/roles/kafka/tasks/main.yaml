@@ -61,7 +61,8 @@
   block:
     - name: download jmx jar
       get_url:
-        url: "https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/0.20.0/jmx_prometheus_javaagent-0.20.0.jar"
+        url: https://github.com/prometheus/jmx_exporter/releases/download/1.6.0/jmx_prometheus_javaagent-1.6.0.jar
+#        url: "https://repo1.maven.org/maven2/io/prometheus/jmx/jmx_prometheus_javaagent/1.6.0/jmx_prometheus_javaagent-1.6.0.jar"
         dest: "/tmp/kafka_download"
 
     - name: unarchive kafka
@@ -74,7 +75,7 @@
 
     - name: copy jmx jar to libs
       copy:
-        src: "/tmp/kafka_download/jmx_prometheus_javaagent-0.20.0.jar"
+        src: "/tmp/kafka_download/jmx_prometheus_javaagent-1.6.0.jar"
         dest: "/opt/kafka/{{ kafka_name }}/libs"
         owner: kafka
         group: kafka
@@ -111,7 +112,7 @@
         group: kafka
         mode: 0644
       vars:
-        node_name: "{{ ansible_hostname }}.podspace.internal"
+        node_name: "{{ ansible_facts['hostname'] }}.podspace.internal"
 
     - name: is kraft initialized
       stat:
