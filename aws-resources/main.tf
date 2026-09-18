@@ -4,7 +4,7 @@ resource local_file host_file {
     {
       prometheus_host_group = local.prometheus_host
       consul_host_group     = local.consul_host_group // ""
-      kafka_host_group      = "" // module.kafka.kafka_host_group // ""
+      kafka_host_group      = module.kafka.kafka_host_group // ""
       app_host_group        = "" // local.app_host_group // ""
       zookeeper_host_group  = "" // module.zookeeper.zookeeper_host_group // ""
     })
@@ -28,7 +28,7 @@ resource local_file ssh_config {
   filename        = "../infra/ssh.cfg"
   content         = templatefile("templates/ssh.cfg",
     {
-      bastion_ip   = aws_instance.prom_server.public_ip
+      bastion_ip   = module.prom_server.public_ip
       host_pattern = "10.20.*.*"
     })
   file_permission = 0644

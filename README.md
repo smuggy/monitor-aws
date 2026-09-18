@@ -18,13 +18,21 @@ The Consul nodes do have an EBS volume attached (to /var/lib/consul) that is cre
 The reason for the separate creation was to allow the EBS volumes to exist without the nodes, that may not be necessary
 for restore or upgrade purposes.
 
-
+## Grafana
 Popular grafana dashboards:
   * Node Exporter - 11074
   * Consul - 10642
   * Cadvisor - 893
   * Kubernetes - 8588
   * Kafka - 721
+
+## New Features
+* add policy in consul for terraform/tofu access
+  * create token for policy that is saved off somewhere
+* elastic ip for prometheus server
+* kafka
+  * test with newer version with existing automation
+  * add schema registry server
 
 ---
 

@@ -40,7 +40,7 @@ data aws_route53_zone public {
 
 data aws_subnet public_subnet_one {
   vpc_id            = local.vpc_id
-  availability_zone = element(local.az_list, 0)
+  availability_zone = local.az_list[0]
   filter {
     name = "tag:use"
     values = ["public"]
@@ -49,7 +49,7 @@ data aws_subnet public_subnet_one {
 
 data aws_subnet public_subnet_two {
   vpc_id            = local.vpc_id
-  availability_zone = element(local.az_list, 1)
+  availability_zone = local.az_list[1]
   filter {
     name = "tag:use"
     values = ["public"]
@@ -58,7 +58,7 @@ data aws_subnet public_subnet_two {
 
 data aws_subnet public_subnet_three {
   vpc_id            = local.vpc_id
-  availability_zone = element(local.az_list, 2)
+  availability_zone = local.az_list[2]
   filter {
     name = "tag:use"
     values = ["public"]
