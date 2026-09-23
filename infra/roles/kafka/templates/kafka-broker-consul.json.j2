@@ -1,0 +1,18 @@
+{
+  "service": {
+    "name": "kafka-broker",
+    "id": "kafka-broker-{{ ansible_facts['hostname'] }}",
+    "port": 9092,
+    "tags": [
+      "kafka",
+      "broker-id-{{ node_id_map[node_name] }}"
+    ],
+    "checks": [
+      {
+        "tcp": "localhost:9092",
+        "interval": "10s",
+        "timeout": "2s"
+      }
+    ]
+  }
+}

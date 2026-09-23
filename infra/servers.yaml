@@ -43,14 +43,6 @@
 #    - java
 #    - zookeeper
 
-- name: configure kafka servers
-  hosts: kafka_servers
-  become: yes
-  roles:
-    - java
-    - kafka
-#    - flink
-
 - name: configure prometheus servers
   hosts: prom_servers
   become: yes
@@ -67,6 +59,14 @@
   roles:
     - post_consul
 
+- name: configure kafka servers
+  hosts: kafka_servers
+  become: yes
+  roles:
+    - consul_agent
+    - kafka
+#    - flink
+
 #- name: configure consul on prometheus servers
 #  hosts: prom_servers
 #  become: yes
@@ -80,11 +80,17 @@
 #  roles:
 #    - consul_agent
 
-- name: configure consul on kafka servers
-  hosts: kafka_servers
+#- name: configure consul on kafka servers
+#  hosts: kafka_servers
+#  become: yes
+#  roles:
+#    - consul_agent
+
+- name: schema registry
+  hosts: schema_registry
   become: yes
   roles:
-    - consul_agent
+    - schema_registry
 
 - name: app server
   hosts: app_servers

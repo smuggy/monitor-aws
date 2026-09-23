@@ -2,11 +2,12 @@ resource local_file host_file {
   filename        = "../infra/all_hosts"
   content         = templatefile("${path.module}/templates/hosts.cfg",
     {
-      prometheus_host_group = local.prometheus_host
-      consul_host_group     = local.consul_host_group // ""
-      kafka_host_group      = module.kafka.kafka_host_group // ""
-      app_host_group        = "" // local.app_host_group // ""
-      zookeeper_host_group  = "" // module.zookeeper.zookeeper_host_group // ""
+      prometheus_host_group      = local.prometheus_host
+      consul_host_group          = local.consul_host_group // ""
+      kafka_host_group           = module.kafka.kafka_host_group // ""
+      app_host_group             = "" // local.app_host_group // ""
+      zookeeper_host_group       = "" // module.zookeeper.zookeeper_host_group // ""
+      schema_registry_host_group = module.kafka.schema_registry_host_group
     })
   file_permission = 0644
 }

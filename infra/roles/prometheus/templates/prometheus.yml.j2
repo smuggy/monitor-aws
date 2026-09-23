@@ -71,10 +71,19 @@ scrape_configs:
       - source_labels: [__meta_ec2_tag_Name]
         target_label: hostname
 
+  - job_name: k-producer
+    metrics_path: /actuator/prometheus
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    static_configs:
+      - targets: ['kafka-00.podspace.internal:8080', 'kafka-01.podspace.internal:8080']
+        labels:
+          cluster: us-east-2
+    honor_labels: false
+
   - job_name: 'kafka'
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
-    #####CHANGE THE TARGET TO THE IP AND PORT OF JMX SERVICE JUST INSTALLED#######
     # Grafana import 721
     static_configs:
     - targets: ['kafka-00:9075', 'kafka-01:9075', 'kafka-02:9075']

@@ -4,3 +4,6 @@
     state: started
     enabled: yes
     daemon_reload: yes
+
+- name: reload consul
+  command: consul reload

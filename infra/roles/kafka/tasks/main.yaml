@@ -116,7 +116,7 @@
 
     - name: is kraft initialized
       stat:
-        path: "/opt/kafka/kafka-logs/meta.properties"
+        path: "/opt/kafka/kafka-logs/data/meta.properties"
       register: kraft_initialized
 
     - name: create kraft meta log
@@ -143,5 +143,16 @@
     group: kafka
     mode: 0644
   vars:
-    node_name: "{{ ansible_hostname }}.podspace.internal"
+    node_name: "{{ ansible_facts['hostname'] }}.podspace.internal"
   when: zookeeper
+
+- name: set up kafka as consul service
+  template:
+    src: kafka-broker-consul.json.j2
+    dest: /etc/consul.d/kafka-broker-consul.json
+    owner: consul
+    group: consul
+    mode: 0644
+  vars:
+    node_name: "{{ ansible_facts['hostname'] }}.podspace.internal"
+  notify: reload consul

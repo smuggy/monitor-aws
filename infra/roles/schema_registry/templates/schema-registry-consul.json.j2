@@ -1,0 +1,17 @@
+{
+  "service": {
+    "name": "schema-registry",
+    "id": "schema-registry-{{ ansible_facts['hostname'] }}",
+    "port": 8081,
+    "tags": [
+      "schema-registry"
+    ],
+    "checks": [
+      {
+        "http": "http://localhost:8081/subjects",
+        "interval": "10s",
+        "timeout": "2s"
+      }
+    ]
+  }
+}

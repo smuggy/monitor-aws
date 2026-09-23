@@ -1,0 +1,87 @@
+- name: create schema registry service account
+  include_role:
+    name: service_account
+  vars:
+    account_name: "{{ sr_user }}"
+
+- name: make install directory
+  file:
+    path: "{{ sr_config_dir }}"
+    mode: 0755
+    state: directory
+    owner: "{{ sr_user }}"
+    group: "{{ sr_group }}"
+
+- name: make log directory
+  file:
+    path: "{{ sr_log_dir }}"
+    mode: 0755
+    state: directory
+    owner: "{{ sr_user }}"
+    group: "{{ sr_group }}"
+
+- name:
+  debug:
+    msg: "https://packages.confluent.io/archive/{{ confluent_version.split('.')[0:2] | join('.') }}/confluent-community-{{ confluent_version }}.tar.gz"
+
+- name: download schema registry tar ball
+  get_url:
+    url: "https://packages.confluent.io/archive/{{ confluent_version.split('.')[0:2] | join('.') }}/confluent-community-{{ confluent_version }}.tar.gz"
+    dest: "/tmp/confluent-community-{{ confluent_version }}.tar.gz"
+    mode: "0644"
+    timeout: 120
+
+- name: extract tar ball
+  unarchive:
+    src: "/tmp/confluent-community-{{ confluent_version }}.tar.gz"
+    dest: "/opt"
+    remote_src: yes
+    creates: "/opt/confluent-{{ confluent_version }}"
+
+- name: link install to actual directory
+  file:
+    src: "/opt/confluent-{{ confluent_version }}"
+    dest: "{{ sr_install_dir }}"
+    state: link
+
+- name: update ownership of installed files
+  file:
+    path: "/opt/confluent-{{ confluent_version }}"
+    owner: "{{ sr_user }}"
+    group: "{{ sr_group }}"
+    recurse: yes
+
+- name: deploy properties file
+  template:
+    src: schema-registry.properties.j2
+    dest: "{{ sr_config_dir }}/schema-registry.properties"
+    owner: "{{ sr_user }}"
+    group: "{{ sr_group }}"
+    mode: "0644"
+
+- name: deploy service file
+  template:
+    src: schema-registry.service.j2
+    dest: /etc/systemd/system/schema-registry.service
+    mode: "0644"
+
+- name: start schema registry
+  systemd:
+    name: schema-registry
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+
+- name: delete tar ball
+  file:
+    path: "/tmp/confluent-community-{{ confluent_version }}.tar.gz"
+    state: absent
+
+- name: set up registry as consul service
+  template:
+    src: schema-registry-consul.json.j2
+    dest: /etc/consul.d/schema-registry-consul.json
+    owner: consul
+    group: consul
+    mode: "0644"
+  notify: reload consul

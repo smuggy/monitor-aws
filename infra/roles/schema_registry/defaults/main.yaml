@@ -1,0 +1,9 @@
+confluent_version: "8.3.2"
+scala_version: "2.13"
+sr_install_dir: "/opt/confluent"
+sr_config_dir: "/etc/schema-registry"
+sr_log_dir: "/var/log/schema-registry"
+sr_user: "schemaregistry"
+sr_group: "schemaregistry"
+sr_listener_port: 8081
+kafka_bootstrap_servers: "kafka-00:9092,kafka-01:9092,kafka-02:9092"

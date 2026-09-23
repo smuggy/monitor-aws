@@ -1,0 +1,14 @@
+[Unit]
+Description=Confluent Schema Registry
+After=network.target
+
+[Service]
+Type=simple
+User={{ sr_user }}
+Group={{ sr_group }}
+ExecStart={{ sr_install_dir }}/bin/schema-registry-start {{ sr_config_dir }}/schema-registry.properties
+Restart=on-failure
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

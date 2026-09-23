@@ -7,7 +7,7 @@ node_prefix "" {
 }
 
 agent_prefix "" {
-  policy = "read"
+  policy = "write"
 }
 
 key_prefix "_rexec" {

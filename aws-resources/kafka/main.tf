@@ -3,6 +3,7 @@ locals {
   kafka_server_names  = formatlist("kafka-%02d", range(local.kafka_cluster_count))
   kafka_hosts         = formatlist("%s ansible_host=%s", local.kafka_server_names, module.brokers.*.public_ip)
   kafka_host_group    = join("\n", local.kafka_hosts)
+  schema_registry_host_group = "${local.kafka_hosts[0]}\n"
 }
 
 data aws_ami ubuntu {
@@ -115,6 +116,15 @@ resource aws_security_group_rule kafka_ports_consul {
   cidr_blocks       = ["10.0.0.0/8"]
   from_port         = 8300
   to_port           = 8301
+}
+
+resource aws_security_group_rule app_test_port {
+  security_group_id = aws_security_group.kafka_security_group.id
+  type              = "ingress"
+  protocol          = "tcp"
+  cidr_blocks       = ["10.0.0.0/8"]
+  from_port         = 8080
+  to_port           = 8080
 }
 
 resource aws_security_group_rule kafka_ssh {
