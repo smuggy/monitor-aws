@@ -18,6 +18,73 @@
     mode: 0755
     state: directory
 
+- name: does keystore exist
+  stat:
+    path: /opt/kafka/broker.keystore.jks
+  register: keystore_exists_result
+
+- block:
+  - name: create jks key store
+    community.general.java_keystore:
+      name: broker-cert
+      dest: /opt/kafka/broker.keystore.jks
+      password: "{{ lookup('file', '../secrets/jks_password') }}"
+      private_key: "{{ lookup('file', '../secrets/external_key.pem') }}"
+      certificate: "{{ lookup('file', '../secrets/external_cert.pem') }}"
+      group: kafka
+      owner: kafka
+      mode: 0640
+
+  - name: copy over the ca root
+    copy:
+      src: ../secrets/external_ca.pem
+      dest: /opt/kafka/external_ca.pem
+      owner: kafka
+      group: kafka
+      mode: "0644"
+
+#  - name: create jks trust store
+#    community.crypto.openssl_pkcs12:
+#      action: export
+#      path: /opt/kafka/broker.truststore.p12
+#      friendly_name: ca-root
+#      certificate_path: /opt/kafka/external_ca.pem
+#      passphrase: "{{ lookup('file', '../secrets/jks_password') }}"
+#      state: present
+#      owner: kafka
+#      group: kafka
+#      mode: 0640
+
+  - name: create jks trust store
+    command:
+      cmd: >
+        keytool -importcert -noprompt
+          -file /opt/kafka/external_ca.pem 
+          -alias ca-root -storepass {{ lookup('file', '../secrets/jks_password') }}
+          -keystore /opt/kafka/broker.truststore.jks
+    args:
+      creates: /opt/kafka/broker.truststore.jks
+
+  - name: change jks ownership
+    file:
+      path: /opt/kafka/broker.truststore.jks
+      owner: kafka
+      group: kafka
+      mode: '0640'
+
+#  - name: create jks trust store
+#    community.general.java_cert:
+#      cert_alias: ca-root
+#      cert_content: "{{ lookup('file', '../secrets/external_ca.pem') }}"
+#      trust_cacert: true
+#      keystore_pass: "password"
+#      keystore_path: /opt/kafka/broker.truststore.jks
+#      keystore_create: true
+#      group: kafka
+#      owner: kafka
+#      state: present
+  when: keystore_exists_result.stat.exists == false
+
 - name: make kafka logs directory
   file:
     path: "/opt/kafka/kafka-logs"
@@ -113,6 +180,8 @@
         mode: 0644
       vars:
         node_name: "{{ ansible_facts['hostname'] }}.podspace.internal"
+        external_node_name: "{{ ansible_facts['hostname'] }}.podspace.net"
+        jks_password: "{{ lookup('file', '../secrets/jks_password') }}"
 
     - name: is kraft initialized
       stat:

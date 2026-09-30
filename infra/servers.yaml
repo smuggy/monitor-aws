@@ -90,6 +90,7 @@
   hosts: schema_registry
   become: yes
   roles:
+    - consul_agent
     - schema_registry
 
 - name: app server

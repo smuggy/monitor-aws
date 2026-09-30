@@ -31,7 +31,7 @@ broker.id={{ node_id_map[node_name] }}
 #     listeners = listener_name://host_name:port
 #   EXAMPLE:
 #     listeners = PLAINTEXT://your.host.name:9092
-listeners=PLAINTEXT://:9092,CONTROLLER://:9093
+listeners=INTERNAL://:9092,CONTROLLER://:9093,EXTERNAL://:9094
 
 # KRaft mode configuration
 controller.quorum.voters=1@kafka-00.podspace.internal:9093,2@kafka-01.podspace.internal:9093,3@kafka-02.podspace.internal:9093
@@ -41,10 +41,13 @@ node.id={{ node_id_map[node_name] }}
 
 # Listener name, hostname and port the broker will advertise to clients.
 # If not set, it uses the value for "listeners".
-advertised.listeners=PLAINTEXT://{{ node_name }}:9092
+advertised.listeners=INTERNAL://{{ node_name }}:9092,EXTERNAL://{{ external_node_name }}:9094
 
 # Maps listener names to security protocols, the default is for them to be the same. See the config documentation for more details
-listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL
+# listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,SSL:SSL,SASL_PLAINTEXT:SASL_PLAINTEXT,SASL_SSL:SASL_SSL
+listener.security.protocol.map=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:SSL
+
+inter.broker.listener.name=INTERNAL
 
 # The number of threads that the server uses for receiving requests from the network and sending responses to the network
 num.network.threads=3
@@ -61,6 +64,12 @@ socket.receive.buffer.bytes=102400
 # The maximum size of a request that the socket server will accept (protection against OOM)
 socket.request.max.bytes=104857600
 
+############################# TLS Stuff  #############################
+listener.name.external.ssl.keystore.location=/opt/kafka/broker.keystore.jks
+listener.name.external.ssl.keystore.password={{ jks_password }}
+listener.name.external.ssl.truststore.location=/opt/kafka/broker.truststore.jks
+listener.name.external.ssl.truststore.password={{ jks_password }}
+listener.name.external.ssl.client.auth=none
 
 ############################# Log Basics #############################
 
@@ -82,6 +91,7 @@ num.recovery.threads.per.data.dir=1
 offsets.topic.replication.factor=1
 transaction.state.log.replication.factor=1
 transaction.state.log.min.isr=2
+auto.create.topics.enable=false
 
 ############################# Log Flush Policy #############################
 

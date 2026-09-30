@@ -80,6 +80,14 @@
     ec2_secret_key_var: "{{ ec2_secret_key }}"
   when: provider == 'aws'
 
+- name: copy producer alerts file
+  copy:
+    src: prometheus-alerts.yaml
+    dest: /etc/prometheus/prometheus-alerts.yaml
+    owner: prometheus
+    group: prometheus
+    mode: 0644
+
 #- name: copy environment file
 #  copy:
 #    src: prometheus.env

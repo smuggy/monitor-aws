@@ -23,6 +23,15 @@ resource local_file kafka_group_file {
   file_permission = 0644
 }
 
+resource local_file registry_group_file {
+  filename        = "../infra/group_vars/schema_registry"
+  content         = templatefile("templates/registry_groups_vars.tpl",
+    {
+      region     = local.region
+    })
+  file_permission = 0644
+}
+
 # module zookeeper {
 #   source = "./zookeeper"
 #
